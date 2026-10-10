@@ -1,0 +1,72 @@
+[
+ {
+  "channel": "Founder-led onboarding (WhatsApp/Telegram group)",
+  "phase": "0",
+  "priority": "P1",
+  "status": "Planned",
+  "visits": null,
+  "signups": null,
+  "depositors": null,
+  "spend_usd": null
+ },
+ {
+  "channel": "Referral program (paid after first deposit)",
+  "phase": "0\u20131",
+  "priority": "P1",
+  "status": "Planned",
+  "visits": null,
+  "signups": null,
+  "depositors": null,
+  "spend_usd": null
+ },
+ {
+  "channel": "Campus & city ambassadors",
+  "phase": "1",
+  "priority": "P1",
+  "status": "Planned",
+  "visits": null,
+  "signups": null,
+  "depositors": null,
+  "spend_usd": null
+ },
+ {
+  "channel": "Crypto X/Twitter & Telegram communities",
+  "phase": "1",
+  "priority": "P2",
+  "status": "Planned",
+  "visits": null,
+  "signups": null,
+  "depositors": null,
+  "spend_usd": null
+ },
+ {
+  "channel": "Partnerships (fintechs, P2P merchants, educators)",
+  "phase": "1\u20132",
+  "priority": "P2",
+  "status": "Planned",
+  "visits": null,
+  "signups": null,
+  "depositors": null,
+  "spend_usd": null
+ },
+ {
+  "channel": "SEO & content (deposit guides, rate comparisons)",
+  "phase": "1\u20132",
+  "priority": "P2",
+  "status": "Planned",
+  "visits": null,
+  "signups": null,
+  "depositors": null,
+  "spend_usd": null
+ },
+ {
+  "channel": "Paid: crypto ad networks & X retargeting",
+  "phase": "2",
+  "priority": "P3",
+  "status": "Planned",
+  "visits": null,
+  "signups": null,
+  "depositors": null,
+  "spend_usd": null
+ }
+]

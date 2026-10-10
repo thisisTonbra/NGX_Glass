@@ -1,0 +1,38 @@
+[
+ {
+  "experiment": "Interview 20 Hashliquid users",
+  "channel": "Research",
+  "hypothesis": "We learn why people deposit and what nearly stopped them",
+  "success": "20+ interviews done",
+  "kill_rule": "\u2014",
+  "status": "Planned",
+  "result": null
+ },
+ {
+  "experiment": "Referral reward after first deposit",
+  "channel": "Referral",
+  "hypothesis": "Each active user brings 0.5 depositors",
+  "success": "15+ referred depositors in 4 weeks",
+  "kill_rule": "Under 5 after 4 weeks",
+  "status": "Planned",
+  "result": null
+ },
+ {
+  "experiment": "Deposit prompt within 2 minutes of sign-up",
+  "channel": "Onboarding",
+  "hypothesis": "Sign-up to deposit rate goes above 35%",
+  "success": "+10 points on sign-up to deposit",
+  "kill_rule": "No lift after 2 weeks",
+  "status": "Planned",
+  "result": null
+ },
+ {
+  "experiment": "One campus ambassador pilot",
+  "channel": "Ambassadors",
+  "hypothesis": "One campus brings 30+ sign-ups",
+  "success": "10+ depositors",
+  "kill_rule": "Under 3 depositors",
+  "status": "Planned",
+  "result": null
+ }
+]

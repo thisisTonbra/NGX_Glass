@@ -1,0 +1,418 @@
+<style>
+  .hl { font-family: var(--font-anthropic-sans); display: grid; gap: var(--cds-gap-xl); font-variant-numeric: tabular-nums; }
+  .hl-head h1 { font-family: var(--font-anthropic-serif); font-weight: 400; font-size: var(--cds-font-size-title); margin: 0; text-wrap: balance; }
+  .hl-head p { margin: var(--cds-gap-xs) 0 0; color: var(--color-fg-muted); max-width: 70ch; }
+  .hl-nav { display: flex; flex-wrap: wrap; gap: var(--cds-gap-sm); margin-top: var(--cds-gap-md); }
+  .hl-nav a { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); text-decoration: none; border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: var(--cds-pad-xs) var(--cds-pad-sm); }
+  .hl-nav a:hover, .hl-nav a:focus-visible { color: var(--color-fg); }
+  .hl h2 { font-size: var(--cds-font-size-heading); font-weight: var(--cds-font-weight-medium); margin: 0 0 var(--cds-gap-sm); }
+  .hl-sec > p.hl-note { margin: 0 0 var(--cds-gap-md); color: var(--color-fg-muted); font-size: var(--cds-font-size-caption); max-width: 75ch; }
+  .hl-tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 13rem), 1fr)); gap: var(--cds-gap-md); }
+  .hl-card { background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: var(--cds-pad-lg); min-width: 0; }
+  .hl-card h3 { font-size: var(--cds-font-size-body); font-weight: var(--cds-font-weight-medium); margin: 0; }
+  .hl-card .hl-sub { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); margin: 2px 0 var(--cds-gap-sm); }
+  .hl-big { font-family: var(--font-anthropic-serif); font-weight: 400; font-size: var(--cds-font-size-title); line-height: 1.15; display: block; min-height: 1.15em; }
+  .hl-vs { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); margin-top: var(--cds-gap-xs); }
+  .hl-vs .ok { color: var(--color-ok); } .hl-vs .bad { color: var(--color-bad); }
+  .hl-bar { height: 6px; border-radius: 3px; background: var(--cds-chart-grid); margin-top: var(--cds-gap-sm); overflow: hidden; }
+  .hl-bar > span { display: block; height: 100%; width: 0; background: var(--cds-chart-status-critical); border-radius: 3px; }
+  .hl-bar > span.on { background: currentColor; }
+  .hl-grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr)); gap: var(--cds-gap-md); }
+  .hl-chart { position: relative; min-height: 220px; }
+  .hl-tip { position: absolute; pointer-events: none; background: var(--cds-surface-popover); border: 1px solid var(--cds-border); border-radius: var(--cds-radius); box-shadow: var(--cds-shadow-popover); padding: var(--cds-pad-xs) var(--cds-pad-sm); font-size: var(--cds-font-size-caption); white-space: nowrap; }
+  .hl-tip .d { color: var(--cds-text-secondary); }
+  .hl-tip i { display: inline-block; width: 8px; height: 8px; border-radius: 2px; margin-right: 6px; }
+  .hl-empty { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); margin: 0 0 var(--cds-gap-sm); }
+  .hl-funnel { display: grid; gap: var(--cds-gap-sm); min-height: 260px; }
+  .hl-step { display: grid; grid-template-columns: minmax(7rem, 11rem) 1fr auto; gap: var(--cds-gap-sm); align-items: center; font-size: var(--cds-font-size-caption); }
+  .hl-step .track { height: 22px; background: var(--cds-chart-grid); border-radius: 4px; overflow: hidden; }
+  .hl-step .fill { height: 100%; border-radius: 4px; width: 0; }
+  .hl-step .n { min-width: 6.5rem; text-align: right; }
+  .hl-step .loss { color: var(--color-fg-muted); }
+  .hl-step .loss.worst { color: var(--color-bad); }
+  .hl-tbl-wrap { overflow-x: auto; }
+  .hl table { width: 100%; border-collapse: collapse; font-size: var(--cds-font-size-caption); }
+  .hl th, .hl td { text-align: left; padding: var(--cds-pad-xs) var(--cds-pad-sm); border-bottom: 1px solid var(--color-border-line); vertical-align: top; }
+  .hl th { font-weight: var(--cds-font-weight-medium); color: var(--color-fg-muted); white-space: nowrap; }
+  .hl td.num, .hl th.num { text-align: right; white-space: nowrap; }
+  .hl-pill { display: inline-block; padding: 1px 8px; border-radius: 999px; border: 1px solid var(--color-border-line); white-space: nowrap; }
+  .hl-pill.SCALE { color: var(--color-ok); border-color: currentColor; }
+  .hl-pill.TEST { color: var(--color-warn); border-color: currentColor; }
+  .hl-pill.STOP, .hl-pill.PAUSE { color: var(--color-bad); border-color: currentColor; }
+  .hl-pitch { font-size: var(--cds-font-size-body); line-height: 1.6; max-width: 70ch; }
+  .hl-pitch p { margin: 0 0 var(--cds-gap-sm); }
+  .hl-pitch b { font-weight: var(--cds-font-weight-medium); }
+  [data-dash-source-state=empty] { color: transparent; }
+  [data-dash-source-state=refreshing] { opacity: .5; transition: opacity var(--cds-dur-slow); }
+  @media (max-width: 520px) { .hl-step { grid-template-columns: 6.5rem 1fr; } .hl-step .n { grid-column: 2; text-align: left; } .hl .hide-sm { display: none; } }
+</style>
+
+<div class="hl">
+  <header class="hl-head" id="top">
+    <h1>Hashliquid Growth Ops</h1>
+    <p class="hl-takeaway dash-skeleton" data-source="summary" data-field="takeaway" data-row="0">—</p>
+    <nav class="hl-nav" aria-label="Sections">
+      <a href="#scorecard">Scorecard</a><a href="#trend">Trend</a><a href="#funnel">Funnel</a><a href="#channels">Channels</a><a href="#experiments">Experiments</a><a href="#pitch">Pitch</a>
+    </nav>
+  </header>
+
+  <section class="hl-sec" id="scorecard">
+    <h2>North stars, latest logged week</h2>
+    <p class="hl-note">Weekly funded active users (WFAU): users I brought in who have deposited and made at least one transaction that week. Volume: what those users moved that week, in USD. Only users traceable to my links, codes or groups count.</p>
+    <div class="hl-tiles">
+      <div class="hl-card" id="tile-wfau">
+        <h3>Weekly funded active users</h3>
+        <div class="hl-sub">Latest logged week</div>
+        <b class="hl-big dash-skeleton" data-source="summary" data-field="wfau" data-row="0">—</b>
+        <div class="hl-vs">Target <span data-source="summary" data-field="wfau_target" data-row="0">—</span> · <span class="hl-gap-wfau"></span></div>
+      </div>
+      <div class="hl-card" id="tile-volume">
+        <h3>Weekly volume</h3>
+        <div class="hl-sub">Latest logged week, USD</div>
+        <b class="hl-big dash-skeleton" data-source="summary" data-field="volume_usd" data-row="0">—</b>
+        <div class="hl-vs">Target <span data-source="summary" data-field="volume_target_usd" data-row="0">—</span> · <span class="hl-gap-vol"></span></div>
+      </div>
+      <div class="hl-card" id="tile-depositors">
+        <h3>Depositors brought in</h3>
+        <div class="hl-sub">All logged weeks</div>
+        <b class="hl-big dash-skeleton" data-source="summary" data-field="total_depositors" data-row="0">—</b>
+        <div class="hl-vs"><span data-source="summary" data-field="total_volume_usd" data-row="0">—</span> total volume</div>
+      </div>
+      <div class="hl-card" id="tile-phase">
+        <h3>Phase progress</h3>
+        <div class="hl-sub hl-phase-name">Phase 0, to 150 active users</div>
+        <b class="hl-big dash-skeleton" data-source="summary" data-field="phase_share" data-row="0">—</b>
+        <div class="hl-bar" style="color: var(--color-ok)"><span class="hl-phase-fill"></span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="hl-sec" id="trend">
+    <h2>Trend against the 12-week plan</h2>
+    <p class="hl-note">Dashed line is the target. Plan runs Oct 12 to Dec 28, 2026. Volume target assumes about $150 a week per active user.</p>
+    <div class="hl-grid2">
+      <div class="hl-card" id="chart-wfau-card">
+        <h3>Weekly funded active users</h3>
+        <div class="hl-sub">Per week, actual vs target</div>
+        <p class="hl-empty hl-empty-trend" hidden>No weeks logged yet. The actual line appears after the first weekly update.</p>
+        <div class="hl-chart" id="chart-wfau" data-source="weekly_log"></div>
+      </div>
+      <div class="hl-card" id="chart-volume-card">
+        <h3>Weekly volume (USD)</h3>
+        <div class="hl-sub">Per week, actual vs target</div>
+        <p class="hl-empty hl-empty-trend" hidden>No weeks logged yet. Bars appear after the first weekly update.</p>
+        <div class="hl-chart" id="chart-volume" data-source="weekly_log"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="hl-sec" id="funnel">
+    <h2>Funnel, all logged weeks</h2>
+    <p class="hl-note">Each step counts users I brought in. The red figure is the biggest drop between steps: fix that first. KYC and deposit rails are where African fintech funnels usually leak.</p>
+    <div class="hl-card">
+      <p class="hl-empty hl-empty-funnel" hidden>No funnel numbers logged yet.</p>
+      <div class="hl-funnel" id="funnel-chart" data-source="funnel"></div>
+    </div>
+  </section>
+
+  <section class="hl-sec" id="channels">
+    <h2>Channels</h2>
+    <p class="hl-note">Verdict rules: SCALE at a sign-up rate of 10% or more with depositors and a cost per depositor of $20 or less. TEST while a channel has some depositors but misses those bars. STOP after 200+ visits with no depositors.</p>
+    <div class="hl-card hl-tbl-wrap">
+      <table id="channels-table" data-source="channels" data-row-key="channel">
+        <thead><tr>
+          <th data-field="channel">Channel</th>
+          <th data-field="priority">Priority</th>
+          <th data-field="phase" class="hide-sm">Phase</th>
+          <th data-field="status">Status</th>
+          <th data-field="visits" class="num hide-sm">Visits</th>
+          <th data-field="signups" class="num hide-sm">Sign-ups</th>
+          <th data-field="depositors" class="num">Depositors</th>
+          <th data-field="spend_usd" class="num hide-sm">Spend</th>
+          <th data-source="channel_scores" data-field="signup_rate" class="num">Sign-up rate</th>
+          <th data-source="channel_scores" data-field="cost_per_depositor" class="num">Cost / depositor</th>
+          <th data-source="channel_scores" data-field="verdict">Verdict</th>
+        </tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="hl-sec" id="experiments">
+    <h2>Experiments</h2>
+    <p class="hl-note">First 30 days. Each one has a success bar and a kill rule, so nothing runs on hope.</p>
+    <div class="hl-card hl-tbl-wrap">
+      <table id="experiments-table" data-source="experiments" data-row-key="experiment">
+        <thead><tr>
+          <th data-field="experiment">Experiment</th>
+          <th data-field="channel" class="hide-sm">Channel</th>
+          <th data-field="hypothesis" class="hide-sm">Hypothesis</th>
+          <th data-field="success">Success</th>
+          <th data-field="kill_rule" class="hide-sm">Kill rule</th>
+          <th data-field="status">Status</th>
+          <th data-field="result">Result</th>
+        </tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="hl-sec" id="pitch">
+    <h2>The pitch to Hashliquid</h2>
+    <p class="hl-note">Written from the numbers above, so it updates as weeks are logged. Use it as the opening of the email or deck.</p>
+    <div class="hl-card hl-pitch">
+      <p class="dash-skeleton" data-source="summary" data-field="pitch" data-row="0">—</p>
+      <p class="dash-skeleton" data-source="best_channel" data-field="line" data-row="0">—</p>
+      <p>What I'm proposing: a growth lead role for Africa, owning weekly funded active users and volume, with this dashboard as the weekly report.</p>
+    </div>
+  </section>
+</div>
+
+<script>
+dash.calc('summary', {
+  inputs: ['weekly_log'],
+  title: 'Growth summary',
+  description: 'Latest logged week against target, running totals, phase progress and the pitch text.',
+  fn: (weekly_log) => {
+    const logged = weekly_log.filter((w) => w.wfau !== null && w.wfau !== undefined && w.wfau !== '');
+    const sum = (k) => logged.reduce((s, w) => s + (Number(w[k]) || 0), 0);
+    const last = logged[logged.length - 1];
+    const next = weekly_log[logged.length] || weekly_log[weekly_log.length - 1];
+    const money = (n) => '$' + Math.round(n).toLocaleString('en');
+    if (!last) {
+      return [{
+        weeks_logged: 0, wfau: null, wfau_target: next.wfau_target, volume_usd: null, volume_target_usd: next.volume_target_usd,
+        total_depositors: null, total_volume_usd: null, phase_share: null,
+        takeaway: 'No weeks logged yet. Week 1 starts ' + next.week_start + ': the target is ' + next.wfau_target + ' weekly funded active users and ' + money(next.volume_target_usd) + ' in volume.',
+        pitch: 'Not enough data yet. The pitch writes itself here once results are logged; aim for at least 4 weeks before sending it.',
+      }];
+    }
+    const wfau = Number(last.wfau);
+    const phaseCap = wfau < 150 ? 150 : 1000;
+    const vol = Number(last.volume_usd) || 0;
+    const ahead = wfau >= last.wfau_target;
+    return [{
+      weeks_logged: logged.length,
+      week: last.week,
+      wfau, wfau_target: last.wfau_target,
+      volume_usd: vol, volume_target_usd: last.volume_target_usd,
+      total_depositors: sum('first_deposits'), total_volume_usd: sum('volume_usd'), total_signups: sum('signups'),
+      phase_cap: phaseCap, phase_share: Math.min(1, wfau / phaseCap),
+      takeaway: 'Week ' + last.week + ': ' + wfau + ' weekly funded active users against a target of ' + last.wfau_target + (ahead ? ', on plan. ' : ', behind plan. ') + money(vol) + ' volume against ' + money(last.volume_target_usd) + '.',
+      pitch: 'In ' + logged.length + ' week' + (logged.length === 1 ? '' : 's') + ' of independent work I brought Hashliquid ' + sum('signups') + ' sign-ups and ' + sum('first_deposits') + ' depositors, who moved ' + money(sum('volume_usd')) + '. Weekly funded active users from my channels reached ' + wfau + ' in week ' + last.week + ' against a plan of ' + last.wfau_target + '.',
+    }];
+  },
+});
+
+dash.calc('funnel', {
+  inputs: ['weekly_log'],
+  title: 'Funnel totals',
+  description: 'Each funnel step summed over all logged weeks.',
+  fn: (weekly_log) => {
+    const steps = [['visits', 'Visits'], ['signups', 'Sign-ups'], ['kyc_done', 'KYC done'], ['first_deposits', 'First deposit'], ['first_trades', 'First trade'], ['repeat_30d', 'Repeat within 30 days'], ['referrers', 'Referred someone']];
+    const any = weekly_log.some((w) => w.visits !== null && w.visits !== undefined);
+    return steps.map(([k, label], i) => ({ step: label, order: i + 1, users: any ? weekly_log.reduce((s, w) => s + (Number(w[k]) || 0), 0) : null }));
+  },
+});
+
+dash.calc('channel_scores', {
+  inputs: ['channels'],
+  title: 'Channel verdicts',
+  description: 'Sign-up rate, cost per depositor and a SCALE / TEST / STOP verdict per channel.',
+  fn: (channels) => channels.map((c) => {
+    const v = c.visits === null ? null : Number(c.visits);
+    const s = Number(c.signups) || 0, d = Number(c.depositors) || 0, spend = Number(c.spend_usd) || 0;
+    const rate = v ? s / v : null;
+    const cpd = d ? spend / d : null;
+    let verdict = 'Not started';
+    if (v !== null) {
+      if (d > 0 && rate >= 0.10 && (cpd === null || cpd <= 20)) verdict = 'SCALE';
+      else if (v >= 200 && d === 0) verdict = 'STOP';
+      else verdict = 'TEST';
+    }
+    return { channel: c.channel, signup_rate: rate, cost_per_depositor: cpd, verdict };
+  }),
+});
+
+dash.calc('best_channel', {
+  inputs: ['channels'],
+  title: 'Best channel',
+  description: 'The channel with the most depositors, for the pitch.',
+  fn: (channels) => {
+    const best = channels.filter((c) => Number(c.depositors) > 0).sort((a, b) => b.depositors - a.depositors)[0];
+    return [{ channel: best ? best.channel : null, line: best ? 'Strongest channel so far: ' + best.channel + ', with ' + best.depositors + ' depositors.' : 'Strongest channel: not known yet, no channel has depositors logged.' }];
+  },
+});
+
+(() => {
+  const fmt = d3.format(',');
+  const usd = (n) => '$' + d3.format(',.0f')(n);
+  const pct = d3.format('.1%');
+  const dfmt = d3.utcFormat('%b %-d');
+  const val = (x) => (x === null || x === undefined ? '—' : x);
+
+  function setText(sel, t) { document.querySelectorAll(sel).forEach((el) => { el.textContent = t; }); }
+  function unskel() { document.querySelectorAll('.hl .dash-skeleton').forEach((el) => el.classList.remove('dash-skeleton')); }
+
+  function drawChart(el, rows, kind) {
+    el.replaceChildren();
+    const W = el.clientWidth; if (!W) return;
+    const H = 220, m = { t: 12, r: 12, b: 26, l: 8 };
+    const svg = d3.select(el).append('svg').attr('width', '100%').attr('viewBox', `0 0 ${W} ${H}`).attr('role', 'img')
+      .attr('aria-label', kind === 'wfau' ? 'Weekly funded active users vs target' : 'Weekly volume vs target');
+    const tk = kind === 'wfau' ? 'wfau_target' : 'volume_target_usd';
+    const ak = kind === 'wfau' ? 'wfau' : 'volume_usd';
+    const f = kind === 'wfau' ? fmt : (n) => '$' + d3.format('~s')(n);
+    const max = d3.max(rows, (r) => Math.max(r[tk], Number(r[ak]) || 0)) || 1;
+    const y = d3.scaleLinear([0, max * 1.08], [H - m.b, m.t]).nice();
+    const ticks = y.ticks(4);
+    const probe = svg.append('text').attr('font-size', 11).text(f(ticks[ticks.length - 1]));
+    m.l = probe.node().getComputedTextLength() + 10; probe.remove();
+    const x = d3.scaleBand(rows.map((r) => r.week_start), [m.l, W - m.r]).padding(0.3);
+    svg.append('g').selectAll('line').data(ticks).join('line').attr('x1', m.l).attr('x2', W - m.r).attr('y1', y).attr('y2', y).attr('stroke', 'var(--cds-chart-grid)');
+    svg.append('g').selectAll('text').data(ticks).join('text').attr('x', m.l - 6).attr('y', y).attr('dy', '0.32em').attr('text-anchor', 'end')
+      .attr('font-size', 11).attr('fill', 'var(--color-fg-muted)').text(f);
+    const every = Math.ceil(rows.length / Math.max(1, Math.floor((W - m.l) / 56)));
+    svg.append('g').selectAll('text').data(rows.filter((r, i) => i % every === 0)).join('text')
+      .attr('x', (r) => x(r.week_start) + x.bandwidth() / 2).attr('y', H - 8).attr('text-anchor', 'middle').attr('font-size', 11)
+      .attr('fill', 'var(--color-fg-muted)').text((r) => dfmt(new Date(r.week_start)));
+    const cx = (r) => x(r.week_start) + x.bandwidth() / 2;
+    const logged = rows.filter((r) => r[ak] !== null && r[ak] !== undefined);
+    if (kind === 'volume') {
+      svg.append('g').selectAll('rect').data(logged).join('rect').attr('x', (r) => x(r.week_start) + Math.max(0, (x.bandwidth() - 32) / 2))
+        .attr('width', Math.min(32, x.bandwidth())).attr('y', (r) => y(Number(r[ak]))).attr('height', (r) => y(0) - y(Number(r[ak])))
+        .attr('rx', 4).attr('fill', dash.colors[0]);
+    }
+    svg.append('path').datum(rows).attr('fill', 'none').attr('stroke', 'var(--cds-chart-reference)').attr('stroke-width', 1.5).attr('stroke-dasharray', '4 4')
+      .attr('d', d3.line((r) => cx(r), (r) => y(r[tk])));
+    if (kind === 'wfau' && logged.length) {
+      svg.append('path').datum(logged).attr('fill', 'none').attr('stroke', dash.colors[0]).attr('stroke-width', 2).attr('stroke-linecap', 'round').attr('stroke-linejoin', 'round')
+        .attr('d', d3.line((r) => cx(r), (r) => y(Number(r[ak]))));
+      const e = logged[logged.length - 1];
+      svg.append('circle').attr('cx', cx(e)).attr('cy', y(Number(e[ak]))).attr('r', 4).attr('fill', dash.colors[0]);
+    }
+    const tip = document.createElement('div'); tip.className = 'hl-tip'; tip.hidden = true; el.appendChild(tip);
+    const hover = svg.append('line').attr('y1', m.t).attr('y2', H - m.b).attr('stroke', 'var(--cds-chart-axis)').attr('opacity', 0);
+    svg.append('rect').attr('x', m.l).attr('y', 0).attr('width', W - m.l - m.r).attr('height', H - m.b).attr('fill', 'transparent')
+      .on('mousemove', (ev) => {
+        const [px] = d3.pointer(ev);
+        const r = rows.reduce((a, b) => (Math.abs(cx(b) - px) < Math.abs(cx(a) - px) ? b : a));
+        hover.attr('x1', cx(r)).attr('x2', cx(r)).attr('opacity', 1);
+        const fv = kind === 'wfau' ? fmt : usd;
+        tip.replaceChildren();
+        const d = document.createElement('div'); d.className = 'd'; d.textContent = 'Week ' + r.week + ' · ' + dfmt(new Date(r.week_start)); tip.appendChild(d);
+        const a = document.createElement('div'); const sw = document.createElement('i'); sw.style.background = dash.colors[0]; a.append(sw, 'Actual ' + (r[ak] === null ? 'not logged' : fv(Number(r[ak])))); tip.appendChild(a);
+        const t = document.createElement('div'); t.textContent = 'Target ' + fv(r[tk]); tip.appendChild(t);
+        tip.hidden = false;
+        const tw = tip.offsetWidth;
+        tip.style.left = Math.max(0, Math.min(W - tw, cx(r) + 10)) + 'px'; tip.style.top = '8px';
+      })
+      .on('mouseleave', () => { tip.hidden = true; hover.attr('opacity', 0); });
+  }
+
+  function fillTable(table, rows, cols, key) {
+    const tb = table.querySelector('tbody'); tb.replaceChildren();
+    rows.forEach((r) => {
+      const tr = document.createElement('tr');
+      cols.forEach(([fn, cls]) => {
+        const td = document.createElement('td'); if (cls) td.className = cls;
+        const v = fn(r);
+        if (v instanceof Node) td.appendChild(v); else td.textContent = v;
+        tr.appendChild(td);
+      });
+      tb.appendChild(tr);
+    });
+  }
+
+  dash.onData(() => {
+    const s = dash.data('summary'), w = dash.data('weekly_log'), fu = dash.data('funnel');
+    const ch = dash.data('channels'), cs = dash.data('channel_scores'), ex = dash.data('experiments');
+
+    if (s.status === 'ok' && s.data[0]) {
+      unskel();
+      const r = s.data[0];
+      setText('[data-source="summary"][data-field="takeaway"]', r.takeaway);
+      setText('[data-source="summary"][data-field="pitch"]', r.pitch);
+      setText('[data-source="summary"][data-field="wfau"]', r.wfau === null ? '—' : fmt(r.wfau));
+      setText('[data-source="summary"][data-field="wfau_target"]', fmt(r.wfau_target));
+      setText('[data-source="summary"][data-field="volume_usd"]', r.volume_usd === null ? '—' : usd(r.volume_usd));
+      setText('[data-source="summary"][data-field="volume_target_usd"]', usd(r.volume_target_usd));
+      setText('[data-source="summary"][data-field="total_depositors"]', r.total_depositors === null ? '—' : fmt(r.total_depositors));
+      setText('[data-source="summary"][data-field="total_volume_usd"]', r.total_volume_usd === null ? '—' : usd(r.total_volume_usd));
+      setText('[data-source="summary"][data-field="phase_share"]', r.phase_share === null ? '—' : pct(r.phase_share));
+      const gap = (el, a, t, f) => {
+        el.replaceChildren();
+        if (a === null) { el.textContent = 'not logged yet'; return; }
+        const sp = document.createElement('span'); const d = a - t;
+        sp.className = d >= 0 ? 'ok' : 'bad'; sp.textContent = (d >= 0 ? '+' : '−') + f(Math.abs(d)) + (d >= 0 ? ' ahead' : ' behind');
+        el.appendChild(sp);
+      };
+      gap(document.querySelector('.hl-gap-wfau'), r.wfau, r.wfau_target, fmt);
+      gap(document.querySelector('.hl-gap-vol'), r.volume_usd, r.volume_target_usd, usd);
+      document.querySelector('.hl-phase-name').textContent = r.phase_cap === 1000 ? 'Phase 1, to 1,000 active users' : 'Phase 0, to 150 active users';
+      const pf = document.querySelector('.hl-phase-fill');
+      pf.style.width = ((r.phase_share || 0) * 100) + '%'; pf.classList.toggle('on', true);
+    }
+
+    const charts = [['chart-wfau', 'wfau'], ['chart-volume', 'volume']];
+    if (w.status === 'ok') {
+      const rows = w.data.map((r) => ({ ...r, wfau_target: Number(r.wfau_target), volume_target_usd: Number(r.volume_target_usd) }));
+      const none = !rows.some((r) => r.wfau !== null && r.wfau !== undefined);
+      document.querySelectorAll('.hl-empty-trend').forEach((p) => { p.hidden = !none; });
+      charts.forEach(([id, k]) => drawChart(document.getElementById(id), rows, k));
+    } else charts.forEach(([id]) => document.getElementById(id).replaceChildren());
+
+    const fc = document.getElementById('funnel-chart');
+    fc.replaceChildren();
+    if (fu.status === 'ok') {
+      const rows = fu.data; const empty = rows[0].users === null;
+      document.querySelector('.hl-empty-funnel').hidden = !empty;
+      const top = Math.max(1, rows[0].users || 0);
+      let worst = -1, worstLoss = -1;
+      rows.forEach((r, i) => { if (i && rows[i - 1].users) { const l = 1 - (r.users || 0) / rows[i - 1].users; if (l > worstLoss) { worstLoss = l; worst = i; } } });
+      rows.forEach((r, i) => {
+        const row = document.createElement('div'); row.className = 'hl-step';
+        const lab = document.createElement('div'); lab.textContent = r.step;
+        const track = document.createElement('div'); track.className = 'track';
+        const fill = document.createElement('div'); fill.className = 'fill'; fill.style.background = dash.colors[0];
+        fill.style.width = empty ? '0' : ((r.users || 0) / top * 100) + '%'; track.appendChild(fill);
+        const n = document.createElement('div'); n.className = 'n';
+        n.textContent = empty ? '—' : fmt(r.users);
+        if (!empty && i && rows[i - 1].users) {
+          const l = document.createElement('span'); l.className = 'loss' + (i === worst ? ' worst' : '');
+          l.textContent = '  −' + pct(1 - (r.users || 0) / rows[i - 1].users); n.appendChild(l);
+        }
+        row.append(lab, track, n); fc.appendChild(row);
+      });
+    }
+
+    if (ch.status === 'ok') {
+      const sc = cs.status === 'ok' ? new Map(cs.data.map((r) => [r.channel, r])) : new Map();
+      const pill = (t) => { const s = document.createElement('span'); s.className = 'hl-pill ' + t; s.textContent = t; return s; };
+      fillTable(document.getElementById('channels-table'), ch.data, [
+        [(r) => r.channel], [(r) => r.priority], [(r) => r.phase, 'hide-sm'], [(r) => r.status],
+        [(r) => r.visits === null ? '—' : fmt(r.visits), 'num hide-sm'], [(r) => r.signups === null ? '—' : fmt(r.signups), 'num hide-sm'],
+        [(r) => r.depositors === null ? '—' : fmt(r.depositors), 'num'], [(r) => r.spend_usd === null ? '—' : usd(r.spend_usd), 'num hide-sm'],
+        [(r) => { const x = sc.get(r.channel); return x && x.signup_rate !== null ? pct(x.signup_rate) : '—'; }, 'num'],
+        [(r) => { const x = sc.get(r.channel); return x && x.cost_per_depositor !== null ? usd(x.cost_per_depositor) : '—'; }, 'num'],
+        [(r) => { const x = sc.get(r.channel); return x ? pill(x.verdict) : '—'; }],
+      ]);
+    }
+    if (ex.status === 'ok') {
+      fillTable(document.getElementById('experiments-table'), ex.data, [
+        [(r) => r.experiment], [(r) => r.channel, 'hide-sm'], [(r) => r.hypothesis, 'hide-sm'], [(r) => r.success],
+        [(r) => r.kill_rule, 'hide-sm'], [(r) => r.status], [(r) => val(r.result)],
+      ]);
+    }
+    const b = dash.data('best_channel');
+    if (b.status === 'ok' && b.data[0]) setText('[data-source="best_channel"][data-field="line"]', b.data[0].line);
+  });
+
+  document.querySelectorAll('.hl-nav a').forEach((a) => a.addEventListener('click', (e) => {
+    e.preventDefault(); const t = document.getElementById(a.getAttribute('href').slice(1));
+    if (t) { t.scrollIntoView({ behavior: 'smooth' }); dash.setLink(t.id); }
+  }));
+  const named = document.getElementById(location.hash.slice(1));
+  if (named) requestAnimationFrame(() => named.scrollIntoView());
+})();
+</script>
