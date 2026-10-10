@@ -1,0 +1,1041 @@
+<title>Arc Nigeria Growth</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: control room. Left rail groups the 25 views by job (Command, Build, Adopt, Reach, Talent, Operate, Data);
+   sticky filter bar on top; each view reads summary tiles -> charts -> live team records. */
+:root{
+  --bg:#f5f6f2; --panel:#ffffff; --panel-2:#eef0eb; --fg:#111512; --fg-2:#49524b; --muted:#737d75;
+  --line:#dfe3dc; --line-2:#c6cdc5; --accent:#0c6a46; --accent-ink:#ffffff; --accent-soft:#dcefe4;
+  --good:#0ca30c; --warn:#fab219; --serious:#ec835a; --bad:#d03b3b; --good-ink:#006300; --bad-ink:#b02a2a;
+  --s1:#2a78d6; --s2:#eb6834; --s3:#1baf7a; --s4:#eda100; --s5:#e87ba4; --s6:#008300; --s7:#6250d6; --s8:#e34948;
+  --shadow:0 12px 40px rgba(17,21,18,.18);
+  --font-display:"Bricolage Grotesque","Avenir Next","Segoe UI",system-ui,sans-serif;
+  --font-body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --font-mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+  --r:6px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0d100e; --panel:#151917; --panel-2:#1c211e; --fg:#edf0eb; --fg-2:#b6bfb8; --muted:#858f87;
+  --line:#252b27; --line-2:#353d38; --accent:#3dbd88; --accent-ink:#07130d; --accent-soft:#163024;
+  --good-ink:#2fc02f; --bad-ink:#f07a7a;
+  --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500; --s5:#d55181; --s6:#008300; --s7:#9085e9; --s8:#e66767;
+  --shadow:0 12px 40px rgba(0,0,0,.5); color-scheme:dark;}}
+:root[data-theme="dark"]{
+  --bg:#0d100e; --panel:#151917; --panel-2:#1c211e; --fg:#edf0eb; --fg-2:#b6bfb8; --muted:#858f87;
+  --line:#252b27; --line-2:#353d38; --accent:#3dbd88; --accent-ink:#07130d; --accent-soft:#163024;
+  --good-ink:#2fc02f; --bad-ink:#f07a7a;
+  --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500; --s5:#d55181; --s6:#008300; --s7:#9085e9; --s8:#e66767;
+  --shadow:0 12px 40px rgba(0,0,0,.5); color-scheme:dark;}
+
+*{box-sizing:border-box}
+html,body{background:var(--bg);color:var(--fg)}
+body{font:14px/1.5 var(--font-body);}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.app{display:grid;grid-template-columns:232px minmax(0,1fr);min-height:100vh}
+.rail{position:sticky;top:env(safe-area-inset-top,0px);align-self:start;height:100vh;overflow-y:auto;border-right:1px solid var(--line);background:var(--panel);padding-block:18px 32px;padding-inline:14px}
+.brand{display:flex;flex-direction:column;gap:2px;padding:0 8px 16px;border-bottom:1px solid var(--line);margin-bottom:12px}
+.brand b{font:700 19px/1.1 var(--font-display);letter-spacing:-.01em}
+.brand span{font-size:12px;color:var(--muted)}
+.flag{display:inline-flex;gap:0;width:22px;height:12px;border-radius:2px;overflow:hidden;vertical-align:-1px;margin-right:6px;border:1px solid var(--line)}
+.flag i{flex:1;background:var(--good-ink)} .flag i:nth-child(2){background:var(--panel)}
+.navgroup{margin-top:12px}
+.navgroup h4{margin:0 0 4px;padding:0 8px;font:600 10.5px/1.4 var(--font-body);letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+.navbtn{display:flex;justify-content:space-between;align-items:center;width:100%;text-align:left;border:0;background:none;padding:6px 8px;border-radius:var(--r);cursor:pointer;color:var(--fg-2)}
+.navbtn:hover{background:var(--panel-2);color:var(--fg)}
+.navbtn[aria-current="page"]{background:var(--accent-soft);color:var(--fg);font-weight:600}
+.navbtn .dot{width:8px;height:8px;border-radius:50%;flex:none}
+.main{min-width:0;padding-inline:28px;padding-block:0 64px}
+.topbar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center;padding-block:14px;border-bottom:1px solid var(--line)}
+.topbar .grow{flex:1 1 auto}
+.navselect{display:none}
+.field-inline{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted)}
+select.ctl,input.ctl{background:var(--panel);border:1px solid var(--line-2);border-radius:var(--r);padding:6px 8px;min-height:34px}
+.chip{display:inline-flex;align-items:center;gap:6px;font-size:12px;padding:3px 9px;border-radius:999px;border:1px solid var(--line-2);background:var(--panel);color:var(--fg-2);white-space:nowrap}
+.chip .led{width:7px;height:7px;border-radius:50%;background:var(--muted)}
+.chip.live .led{background:var(--good)}
+.btn{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line-2);background:var(--panel);padding:6px 12px;border-radius:var(--r);cursor:pointer;min-height:34px;white-space:nowrap}
+.btn:hover{border-color:var(--fg-2)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);font-weight:600}
+.btn.danger{color:var(--bad-ink);border-color:var(--bad)}
+.btn.small{padding:3px 9px;min-height:28px;font-size:12.5px}
+.btn[disabled]{opacity:.5;cursor:not-allowed}
+.banner{margin-top:14px;display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;padding:10px 14px;border:1px dashed var(--warn);border-radius:var(--r);background:color-mix(in srgb,var(--warn) 10%,var(--panel));font-size:13px}
+.banner.info{border-color:var(--line-2);background:var(--panel)}
+.viewhead{display:flex;flex-wrap:wrap;gap:8px 24px;align-items:flex-end;justify-content:space-between;margin:26px 0 18px}
+.viewhead h1{margin:0;font:700 clamp(24px,3vw,32px)/1.1 var(--font-display);letter-spacing:-.015em;text-wrap:balance}
+.viewhead p{margin:6px 0 0;color:var(--fg-2);max-width:68ch}
+.eyebrow{font:600 11px/1.4 var(--font-body);letter-spacing:.09em;text-transform:uppercase;color:var(--accent)}
+.grid{display:grid;gap:14px}
+.tiles{grid-template-columns:repeat(auto-fill,minmax(180px,1fr))}
+.cols-2{grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr))}
+.cols-3{grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr))}
+.section{margin-top:22px}
+.section > h2,.card > h3{margin:0 0 10px;font:600 15px/1.3 var(--font-body)}
+.section > h2 small,.card > h3 small{font-weight:400;color:var(--muted);font-size:12px;margin-left:6px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:16px;min-width:0}
+.tile{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:14px 14px 12px;display:flex;flex-direction:column;gap:4px;min-width:0}
+.tile .lbl{font-size:12px;color:var(--fg-2)}
+.tile .val{font:500 26px/1.15 var(--font-mono);letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.tile .sub{font-size:12px;color:var(--muted);display:flex;flex-wrap:wrap;gap:4px 8px;align-items:center}
+.tile svg.spark{width:100%;height:28px;margin-top:2px}
+.up{color:var(--good-ink)} .down{color:var(--bad-ink)}
+.status{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:500;padding:1px 8px 1px 6px;border-radius:999px;background:var(--panel-2);color:var(--fg-2);white-space:nowrap}
+.status::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--muted)}
+.status.good::before{background:var(--good)} .status.warn::before{background:var(--warn)} .status.serious::before{background:var(--serious)} .status.bad::before{background:var(--bad)}
+.hero{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,2fr);gap:14px}
+.hero .big{font:500 clamp(40px,6vw,64px)/1 var(--font-mono);letter-spacing:-.03em;margin:8px 0 6px;font-variant-numeric:tabular-nums}
+.pillars{grid-template-columns:repeat(auto-fill,minmax(210px,1fr))}
+.pcard{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:12px 14px;cursor:pointer;text-align:left;display:flex;flex-direction:column;gap:6px;min-width:0}
+.pcard:hover{border-color:var(--fg-2)}
+.pcard .row{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.pcard .score{font:500 22px/1 var(--font-mono)}
+.pcard .meter{height:4px;background:var(--panel-2);border-radius:2px;overflow:hidden}
+.pcard .meter i{display:block;height:100%;background:var(--accent);border-radius:2px}
+.pcard .kpi{font-size:12px;color:var(--muted)}
+/* charts */
+.chart{position:relative;min-height:60px}
+.chart svg{display:block;width:100%;overflow:visible}
+.chart .axis text{fill:var(--muted);font:11px var(--font-mono)}
+.chart .grid line{stroke:var(--line);stroke-width:1}
+.chart .base{stroke:var(--line-2)}
+.tip{position:absolute;pointer-events:none;background:var(--panel);border:1px solid var(--line-2);box-shadow:var(--shadow);border-radius:var(--r);padding:8px 10px;font-size:12px;min-width:120px;z-index:3;white-space:nowrap}
+.tip b{display:block;margin-bottom:4px;font-weight:600}
+.tip .r{display:flex;justify-content:space-between;gap:14px;align-items:center}
+.tip .sw{display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:6px}
+.legend{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:12px;color:var(--fg-2);margin-bottom:6px}
+.legend i{display:inline-block;width:10px;height:3px;border-radius:2px;margin-right:6px;vertical-align:middle}
+.bars{display:flex;flex-direction:column;gap:7px}
+.bar{display:grid;grid-template-columns:minmax(80px,34%) minmax(0,1fr) auto;gap:10px;align-items:center;font-size:12.5px}
+.bar .l{color:var(--fg-2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bar .t{height:14px;background:var(--panel-2);border-radius:2px;overflow:hidden}
+.bar .t i{display:block;height:100%;border-radius:0 4px 4px 0;background:var(--s1);min-width:2px}
+.bar .v{font:12px var(--font-mono);font-variant-numeric:tabular-nums;text-align:right;min-width:52px}
+.bar.drop .l{color:var(--fg);font-weight:600}
+.funnel .bar{grid-template-columns:minmax(90px,30%) minmax(0,1fr) auto auto}
+.funnel .c{font:11.5px var(--font-mono);color:var(--muted);min-width:56px;text-align:right}
+.funnel .bar.drop .c{color:var(--bad-ink);font-weight:500}
+.empty{padding:18px;border:1px dashed var(--line-2);border-radius:var(--r);color:var(--muted);font-size:13px;text-align:center}
+/* tables */
+.tblwrap{overflow-x:auto;border:1px solid var(--line);border-radius:var(--r);background:var(--panel)}
+.tbltools{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:8px}
+.tbltools .grow{flex:1 1 160px}
+.tbltools input{width:100%;max-width:280px}
+table.rec{width:100%;border-collapse:collapse;font-size:13px}
+table.rec th{position:sticky;top:0;background:var(--panel-2);text-align:left;font-weight:600;font-size:12px;color:var(--fg-2);padding:8px 10px;border-bottom:1px solid var(--line);white-space:nowrap;cursor:pointer;user-select:none}
+table.rec th.num,table.rec td.num{text-align:right}
+table.rec td{padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top;max-width:280px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+table.rec td.num{font-family:var(--font-mono);font-variant-numeric:tabular-nums}
+table.rec tbody tr{cursor:pointer}
+table.rec tbody tr:hover td{background:var(--panel-2)}
+table.rec tr:last-child td{border-bottom:0}
+.ex{font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);border:1px solid var(--line-2);border-radius:3px;padding:0 4px;margin-left:6px;vertical-align:1px}
+.list{display:flex;flex-direction:column}
+.list .item{display:flex;gap:12px;align-items:flex-start;padding:9px 0;border-bottom:1px solid var(--line);font-size:13px}
+.list .item:last-child{border-bottom:0}
+.list .when{font:12px var(--font-mono);color:var(--muted);min-width:78px}
+.list .item .grow{flex:1;min-width:0}
+.link{background:none;border:0;padding:0;color:var(--accent);cursor:pointer;text-decoration:underline;text-underline-offset:2px}
+.matrix{display:grid;grid-template-columns:auto repeat(3,1fr);gap:4px;font-size:12px}
+.matrix .cell{aspect-ratio:2/1;max-width:100%;border-radius:4px;display:flex;align-items:center;justify-content:center;font:500 16px var(--font-mono)}
+.matrix .ax{color:var(--muted);display:flex;align-items:center;justify-content:center;padding:2px 6px}
+.phase{display:grid;grid-template-columns:30fr 60fr 90fr;gap:4px;margin-top:10px}
+.phase div{padding:8px 10px;border-radius:4px;background:var(--panel-2);font-size:12px;position:relative}
+.phase div.on{background:var(--accent-soft);outline:1px solid var(--accent)}
+.phase b{display:block;font-size:13px}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;font-size:13px}
+.kv dt{color:var(--muted)} .kv dd{margin:0}
+pre.report{white-space:pre-wrap;background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:16px;font:12.5px/1.6 var(--font-mono);max-height:560px;overflow:auto}
+.stages{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
+.stage{border:1px solid var(--line);border-radius:var(--r);padding:10px;background:var(--panel);font-size:12px;color:var(--fg-2)}
+.stage b{display:block;color:var(--fg);font-size:13px;margin-bottom:2px}
+.stage .n{font:11px var(--font-mono);color:var(--accent)}
+/* modal */
+.overlay{position:fixed;inset:0;background:rgba(10,14,12,.45);display:flex;align-items:flex-start;justify-content:center;padding:max(24px,env(safe-area-inset-top,0px)) 16px 24px;z-index:20;overflow-y:auto}
+.modal{background:var(--panel);border:1px solid var(--line-2);border-radius:8px;box-shadow:var(--shadow);width:min(720px,100%);padding:20px}
+.modal h2{margin:0 0 4px;font:700 20px/1.2 var(--font-display)}
+.modal .hint{margin:0 0 14px;color:var(--muted);font-size:12.5px}
+.form{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,200px),1fr));gap:12px}
+.form label{display:flex;flex-direction:column;gap:4px;font-size:12px;color:var(--fg-2);min-width:0}
+.form label.wide{grid-column:1/-1}
+.form input,.form select,.form textarea{background:var(--bg);border:1px solid var(--line-2);border-radius:var(--r);padding:7px 9px;min-height:36px;width:100%}
+.form textarea{min-height:72px;resize:vertical}
+.form fieldset{grid-column:1/-1;border:0;border-top:1px solid var(--line);padding:12px 0 0;margin:4px 0 0;display:grid;grid-template-columns:inherit;gap:12px}
+.form legend{font:600 12px var(--font-body);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);padding-right:8px}
+.modal .actions{display:flex;flex-wrap:wrap;gap:8px;justify-content:space-between;margin-top:18px}
+.modal .actions .r{display:flex;gap:8px;margin-left:auto}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--fg);color:var(--bg);padding:9px 16px;border-radius:var(--r);font-size:13px;z-index:30;box-shadow:var(--shadow);max-width:calc(100% - 32px)}
+.muted{color:var(--muted)} .small{font-size:12px}
+.mono{font-family:var(--font-mono)}
+@media (max-width:900px){
+  .app{grid-template-columns:minmax(0,1fr)}
+  .rail{display:none}
+  .navselect{display:block;flex:1 1 100%}
+  .navselect select{width:100%}
+  .main{padding-inline:16px}
+  .hero{grid-template-columns:minmax(0,1fr)}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+
+<div class="app">
+  <nav class="rail" id="rail" aria-label="Dashboard sections">
+    <div class="brand"><b><span class="flag" aria-hidden="true"><i></i><i></i><i></i></span>Arc Nigeria</b><span>Ecosystem growth · team dashboard</span></div>
+    <div id="navlist"></div>
+  </nav>
+  <div class="main">
+    <div class="topbar">
+      <div class="navselect"><label class="field-inline" for="nav-select">View <select class="ctl" id="nav-select"></select></label></div>
+      <label class="field-inline" for="f-city">City <select class="ctl" id="f-city"></select></label>
+      <label class="field-inline" for="f-period">Period <select class="ctl" id="f-period">
+        <option value="30">Last 30 days</option><option value="90" selected>Last 90 days</option><option value="180">Last 180 days</option><option value="365">Last 12 months</option><option value="all">All time</option>
+      </select></label>
+      <span class="grow"></span>
+      <span class="chip" id="conn"><span class="led"></span><span id="conn-t">Connecting…</span></span>
+    </div>
+    <div id="banner"></div>
+    <div id="view"></div>
+  </div>
+</div>
+<div id="modal-root"></div>
+
+<script>
+(() => {
+'use strict';
+
+/* ---------- option lists ---------- */
+const PARTNER_TYPES=['Fintech / PSP','Exchange / Ramp','Wallet','Remittance','Bank / MFB','Merchant / Marketplace','Telco','Hub / Accelerator','University','Media','VC / Investor','Government / Agency','Infra (RPC, oracle, indexer, audit)'];
+const CIRCLE_PRODUCTS=['Arc Studio','App Kit: Payments','App Kit: Onramp','App Kit: Bridging','App Kit: Swaps','USDC','CCTP','Gateway','Wallets','Arc Portal','Docs','Other'];
+const LANGS=['English','Pidgin','Yoruba','Igbo','Hausa'];
+const PILLAR_NAMES=['Builders & Studio','Education','Projects & Grants','Onchain & Apps','Users & Ramps','BD & Partners','Content & Social','Brand & Intel','Community','Events','Jobs & Bounties','Policy & Trust','Product feedback','Growth ops'];
+
+/* ---------- monthly numbers (national, entered or imported monthly) ---------- */
+const METRICS=[
+  {k:'maep',l:'Monthly active ecosystem participants',g:'North Star & outcomes'},
+  {k:'usdc_volume',l:'Nigerian USDC volume on Arc',g:'North Star & outcomes',f:'usd'},
+  {k:'live_apps',l:'Live Nigerian apps on mainnet',g:'North Star & outcomes'},
+  {k:'funded_projects',l:'Nigerian projects funded (cumulative)',g:'North Star & outcomes'},
+  {k:'studio_aware',l:'Studio: aware (NG visits)',g:'Arc Studio lifecycle'},
+  {k:'studio_signups',l:'Studio: signed up',g:'Arc Studio lifecycle'},
+  {k:'studio_prompt',l:'Studio: first prompt',g:'Arc Studio lifecycle'},
+  {k:'studio_app',l:'Studio: first app generated',g:'Arc Studio lifecycle'},
+  {k:'studio_testnet',l:'Studio: tested on testnet',g:'Arc Studio lifecycle'},
+  {k:'studio_export',l:'Studio: exported code',g:'Arc Studio lifecycle'},
+  {k:'studio_mainnet',l:'Studio: mainnet live',g:'Arc Studio lifecycle'},
+  {k:'studio_transacting',l:'Studio: transacting',g:'Arc Studio lifecycle'},
+  {k:'studio_retained',l:'Studio: retained / advocate',g:'Arc Studio lifecycle'},
+  {k:'dev_docs',l:'Developers: docs visitors (NG)',g:'Developers & support'},
+  {k:'dev_sdk',l:'Developers: SDK / App Kit installs',g:'Developers & support'},
+  {k:'dev_active',l:'Monthly active developers',g:'Developers & support'},
+  {k:'dev_retention_30',l:'30-day builder retention',g:'Developers & support',f:'pct'},
+  {k:'support_tickets',l:'Support tickets',g:'Developers & support'},
+  {k:'support_frt_hours',l:'First response time (hours)',g:'Developers & support',f:'h',lower:true},
+  {k:'wallets',l:'Unique wallets (NG apps)',g:'Onchain'},
+  {k:'txns',l:'Transactions (NG apps)',g:'Onchain'},
+  {k:'active_apps',l:'Weekly active NG apps',g:'Onchain'},
+  {k:'contracts',l:'Contracts deployed',g:'Onchain'},
+  {k:'cctp_inflow',l:'CCTP / bridge inflow to Arc',g:'Onchain',f:'usd'},
+  {k:'portal_visits',l:'Arc Portal visits from NG',g:'Onchain'},
+  {k:'end_users',l:'End users with a repeat transaction',g:'Users & liquidity'},
+  {k:'ramp_volume',l:'Naira ↔ USDC ramp volume',g:'Users & liquidity',f:'usd'},
+  {k:'merchants_onboarded',l:'Merchants onboarded',g:'Users & liquidity'},
+  {k:'merchants_active',l:'Monthly active merchants',g:'Users & liquidity'},
+  {k:'merchant_volume',l:'Merchant volume',g:'Users & liquidity',f:'usd'},
+  {k:'remit_volume',l:'Inbound remittance volume',g:'Users & liquidity',f:'usd'},
+  {k:'followers_x',l:'X followers',g:'Audience'},
+  {k:'followers_yt',l:'YouTube subscribers',g:'Audience'},
+  {k:'followers_tiktok',l:'TikTok followers',g:'Audience'},
+  {k:'newsletter_subs',l:'Newsletter subscribers',g:'Audience'},
+  {k:'sentiment_pos_pct',l:'Positive sentiment share',g:'Brand',f:'pct'},
+  {k:'share_of_voice_pct',l:'Share of voice vs other chains',g:'Brand',f:'pct'},
+  {k:'members_total',l:'Community members',g:'Community'},
+  {k:'members_active',l:'Weekly active members',g:'Community'},
+  {k:'contributors',l:'Contributors',g:'Community'},
+  {k:'chapters',l:'City + campus chapters',g:'Community'},
+  {k:'nps',l:'Community NPS',g:'Community'},
+];
+const MDEF=Object.fromEntries(METRICS.map(m=>[m.k,m]));
+const STUDIO=[
+  ['studio_aware','Aware','Heard of Arc or Studio; visits from Nigeria'],
+  ['studio_signups','Signed up','Created an Arc Studio account'],
+  ['studio_prompt','First prompt','Described an app to Studio'],
+  ['studio_app','First app','Studio generated a working app'],
+  ['studio_testnet','Testnet','Ran the app on Arc testnet'],
+  ['studio_export','Exported','Moved the code to their own repo'],
+  ['studio_mainnet','Mainnet live','Deployed on Arc mainnet'],
+  ['studio_transacting','Transacting','Real users moving USDC'],
+  ['studio_retained','Advocate','Builds again, refers, mentors'],
+];
+
+/* ---------- record collections ---------- */
+const CITY={k:'city',l:'City',t:'city'};
+const OWNER={k:'owner',l:'Owner'};
+const NOTES={k:'notes',l:'Notes',t:'area'};
+const S={
+  contacts:{label:'Directory',one:'person or org',title:'name',date:'lastActive',fields:[
+    {k:'name',l:'Name',req:1},{k:'kind',l:'Kind',t:'sel',o:['Person','Organization']},
+    {k:'role',l:'Role',t:'sel',o:['Builder','Creator','Ambassador','Mentor','Job seeker','Partner contact','Startup','Hub','University','Media','VC','Regulator','Fintech','Exchange / Ramp','Merchant','Other']},
+    {k:'org',l:'Organization'},CITY,{k:'campus',l:'Campus',t:'campus'},{k:'handle',l:'Handle or email'},
+    {k:'lastActive',l:'Last active',t:'date'},{k:'gender',l:'Gender (optional)',t:'sel',o:['','Woman','Man','Non-binary','Prefer not to say']},NOTES],
+    cols:['name','kind','role','org','city','lastActive']},
+  projects:{label:'Projects & apps',one:'project',title:'name',date:'lastUpdate',fields:[
+    {k:'name',l:'Project',req:1},{k:'category',l:'Category',t:'sel',o:['Payments','Remittance','Savings / Ajo','DeFi','Creator','Gaming','B2B / Invoicing','RWA','Infra / Tooling','Other']},
+    {k:'stage',l:'Stage',t:'sel',o:['Idea','Prototype','Testnet','Mainnet','Users','Revenue','Funded','Scaling','Inactive']},
+    {k:'team',l:'Team / founder'},CITY,{k:'source',l:'Came from',t:'sel',o:['Hackathon','Build night','Grant','Fellowship','Education cohort','Organic','Partner','Other']},
+    {k:'studio',l:'Built with Arc Studio',t:'sel',o:['','Yes','No']},{k:'url',l:'Link'},
+    {k:'wallets',l:'Monthly wallets',t:'num'},{k:'volume',l:'Monthly USDC volume',t:'usd'},{k:'raised',l:'Capital raised (USD)',t:'usd'},
+    {k:'launchDate',l:'Mainnet launch',t:'date'},{k:'lastUpdate',l:'Last update',t:'date'},OWNER,NOTES],
+    cols:['name','category','stage','city','source','volume','lastUpdate'],stage:'stage'},
+  grants:{label:'Grants',one:'grant',title:'project',date:'applied',fields:[
+    {k:'project',l:'Project',req:1},{k:'round',l:'Round'},{k:'status',l:'Status',t:'sel',o:['Applied','Reviewing','Approved','Milestones','Completed','Rejected','Churned']},
+    {k:'amount',l:'Grant size (USDC)',t:'usd'},{k:'paid',l:'Paid so far (USDC)',t:'usd'},{k:'msTotal',l:'Milestones',t:'num'},{k:'msDone',l:'Milestones done',t:'num'},
+    {k:'applied',l:'Applied',t:'date'},{k:'nextMs',l:'Next milestone due',t:'date'},CITY,OWNER,NOTES],
+    cols:['project','round','status','amount','paid','nextMs'],stage:'status'},
+  deals:{label:'BD pipeline',one:'deal',title:'org',date:'lastContact',fields:[
+    {k:'org',l:'Organization',req:1},{k:'type',l:'Partner type',t:'sel',o:PARTNER_TYPES},
+    {k:'stage',l:'Stage',t:'sel',o:['Identified','Contacted','Meeting','Proposal','Negotiation','Signed','Integrating','Live','Expanding','Lost']},
+    {k:'health',l:'Health',t:'sel',o:['Active','At risk','Dormant']},{k:'products',l:'Arc / Circle products',t:'sel',o:['',...CIRCLE_PRODUCTS]},
+    {k:'contact',l:'Main contact'},CITY,{k:'value',l:'Expected monthly USDC volume',t:'usd'},{k:'users',l:'Users reached',t:'num'},
+    {k:'firstContact',l:'First contact',t:'date'},{k:'signedDate',l:'Signed',t:'date'},{k:'lastContact',l:'Last contact',t:'date'},
+    {k:'nextStep',l:'Next step'},{k:'nextDate',l:'Next step due',t:'date'},{k:'lostReason',l:'Lost reason'},OWNER,NOTES],
+    cols:['org','type','stage','health','value','nextStep','nextDate'],stage:'stage'},
+  content:{label:'Content',one:'piece',title:'title',date:'date',fields:[
+    {k:'title',l:'Title',req:1},{k:'format',l:'Format',t:'sel',o:['X thread','YouTube tutorial','Short video','Space / podcast','Newsletter','Blog / case study','Docs / translation','Meme','Other']},
+    {k:'platform',l:'Platform',t:'sel',o:['X','YouTube','TikTok','Instagram','LinkedIn','Newsletter','Blog','Telegram','WhatsApp','Other']},
+    {k:'language',l:'Language',t:'sel',o:LANGS},{k:'status',l:'Status',t:'sel',o:['Idea','Planned','In production','Published']},
+    {k:'date',l:'Publish date',t:'date'},{k:'creator',l:'Creator'},{k:'topic',l:'Pillar',t:'sel',o:['',...PILLAR_NAMES]},
+    {k:'impressions',l:'Impressions',t:'num'},{k:'engagements',l:'Engagements',t:'num'},{k:'clicks',l:'Clicks',t:'num'},{k:'signups',l:'Attributed sign-ups',t:'num'},{k:'cost',l:'Cost (USD)',t:'usd'},CITY,NOTES],
+    cols:['title','format','platform','language','status','date','impressions','signups'],stage:'status'},
+  mentions:{label:'Brand & intel log',one:'entry',title:'title',date:'date',fields:[
+    {k:'title',l:'Headline',req:1},{k:'kind',l:'Kind',t:'sel',o:['Press','Interview','Speaking slot','Social mention','Competitor move','Narrative']},
+    {k:'subject',l:'About',t:'comp'},{k:'outlet',l:'Outlet / account'},{k:'tier',l:'Tier',t:'sel',o:['','Tier 1','Tier 2','Community']},
+    {k:'sentiment',l:'Sentiment',t:'sel',o:['Positive','Neutral','Negative']},{k:'reach',l:'Reach',t:'num'},{k:'date',l:'Date',t:'date'},{k:'url',l:'Link'},NOTES],
+    cols:['title','kind','subject','outlet','sentiment','reach','date']},
+  ambassadors:{label:'Ambassadors',one:'ambassador',title:'name',date:'joined',fields:[
+    {k:'name',l:'Name',req:1},CITY,{k:'campus',l:'Campus',t:'campus'},{k:'tier',l:'Stage',t:'sel',o:['Applied','Accepted','Onboarded','Active','Top tier','Offboarded']},
+    {k:'joined',l:'Joined',t:'date'},{k:'tasks',l:'Tasks done',t:'num'},{k:'points',l:'Points',t:'num'},{k:'referrals',l:'Referrals',t:'num'},
+    {k:'events',l:'Events hosted',t:'num'},{k:'rewards',l:'Rewards paid (USDC)',t:'usd'},NOTES],
+    cols:['name','city','campus','tier','points','referrals','events'],stage:'tier'},
+  events:{label:'Events',one:'event',title:'name',date:'date',fields:[
+    {k:'name',l:'Event',req:1},{k:'type',l:'Type',t:'sel',o:['Build night','Hackathon','Meetup','Campus tour','Demo day','Workshop','BD dinner','Conference','Online']},
+    CITY,{k:'date',l:'Date',t:'date'},{k:'status',l:'Status',t:'sel',o:['Planned','Confirmed','Done','Cancelled']},
+    {k:'rsvps',l:'RSVPs',t:'num'},{k:'attended',l:'Attended',t:'num'},{k:'signups',l:'New sign-ups / joins',t:'num'},{k:'shipped',l:'Shipped / partnered',t:'num'},
+    {k:'cost',l:'Cost (USD)',t:'usd'},{k:'csat',l:'Satisfaction (1–5)',t:'num'},{k:'partners',l:'Co-hosts / partners'},OWNER,NOTES],
+    cols:['name','type','city','date','status','attended','signups','cost'],stage:'status'},
+  jobs:{label:'Jobs & bounties',one:'listing',title:'title',date:'posted',fields:[
+    {k:'title',l:'Title',req:1},{k:'kind',l:'Kind',t:'sel',o:['Job','Bounty','Fellowship','Grant program']},{k:'company',l:'Company / poster'},
+    {k:'func',l:'Function',t:'sel',o:['Engineering','Design','Product','Marketing / growth','Community','BD / sales','Content','Other']},
+    {k:'seniority',l:'Level',t:'sel',o:['','Intern','Junior','Mid','Senior','Lead']},CITY,
+    {k:'status',l:'Status',t:'sel',o:['Open','Shortlisting','Interviewing','Filled','Paid','Closed']},
+    {k:'posted',l:'Posted',t:'date'},{k:'deadline',l:'Deadline',t:'date'},{k:'applicants',l:'Applicants / submissions',t:'num'},{k:'interviews',l:'Shortlisted / interviewed',t:'num'},
+    {k:'hires',l:'Hired / winners',t:'num'},{k:'payout',l:'Payout (USDC)',t:'usd'},{k:'pay',l:'Salary or rate'},NOTES],
+    cols:['title','kind','company','func','status','applicants','hires','payout'],stage:'status'},
+  courses:{label:'Education programs',one:'program',title:'name',date:'start',fields:[
+    {k:'name',l:'Program',req:1},{k:'type',l:'Type',t:'sel',o:['University course','Bootcamp','Online course','Fellowship','Train-the-trainer','Non-dev track']},
+    {k:'partner',l:'Partner / campus'},CITY,{k:'start',l:'Start',t:'date'},{k:'status',l:'Status',t:'sel',o:['Planned','Running','Completed']},
+    {k:'enrolled',l:'Enrolled',t:'num'},{k:'started',l:'Started',t:'num'},{k:'completed',l:'Completed',t:'num'},{k:'certified',l:'Certified',t:'num'},
+    {k:'built',l:'Built something',t:'num'},{k:'placed',l:'Placed or funded',t:'num'},{k:'women',l:'Women enrolled',t:'num'},{k:'mentors',l:'Instructors / mentors',t:'num'},OWNER,NOTES],
+    cols:['name','type','partner','city','status','enrolled','completed','placed'],stage:'status'},
+  ramps:{label:'Ramps, wallets & exchanges',one:'venue',title:'venue',date:'updated',fields:[
+    {k:'venue',l:'Venue',req:1},{k:'kind',l:'Kind',t:'sel',o:['On/off-ramp','Exchange','Wallet','Remittance','Bank / MFB','P2P']},
+    {k:'status',l:'USDC-on-Arc support',t:'sel',o:['Not supported','In talks','Testing','Live']},
+    {k:'deposit',l:'Deposits on Arc',t:'sel',o:['','Yes','No']},{k:'withdraw',l:'Withdrawals on Arc',t:'sel',o:['','Yes','No']},{k:'ngn',l:'Naira pair',t:'sel',o:['','Yes','No']},
+    {k:'fee',l:'Fee / spread %',t:'num'},{k:'settle',l:'Settlement (minutes)',t:'num'},{k:'kyc',l:'KYC pass rate %',t:'num'},
+    {k:'volume',l:'Monthly volume (USDC)',t:'usd'},{k:'corridor',l:'Remittance corridor',t:'sel',o:['','UK','US','Canada','UAE','EU','Other']},{k:'updated',l:'Checked on',t:'date'},OWNER,NOTES],
+    cols:['venue','kind','status','deposit','withdraw','ngn','fee','volume'],stage:'status'},
+  campaigns:{label:'Campaigns',one:'campaign',title:'name',date:'start',fields:[
+    {k:'name',l:'Campaign',req:1},{k:'channel',l:'Channel',t:'sel',o:['X','YouTube','TikTok','Instagram','LinkedIn','Telegram / WhatsApp','Newsletter','Events','Ambassadors','Referral','Paid ads','Partner co-marketing','SEO / website','Other']},
+    {k:'utm',l:'UTM campaign'},{k:'pillar',l:'Pillar',t:'sel',o:['',...PILLAR_NAMES]},{k:'start',l:'Start',t:'date'},{k:'end',l:'End',t:'date'},
+    {k:'status',l:'Status',t:'sel',o:['Planned','Live','Done','Paused']},{k:'budget',l:'Budget (USD)',t:'usd'},{k:'spend',l:'Spend (USD)',t:'usd'},
+    {k:'clicks',l:'Clicks',t:'num'},{k:'signups',l:'Sign-ups',t:'num'},{k:'activated',l:'Activated (shipped / transacted)',t:'num'},CITY,OWNER,NOTES],
+    cols:['name','channel','status','spend','signups','activated','start'],stage:'status'},
+  experiments:{label:'Experiments',one:'experiment',title:'name',date:'start',fields:[
+    {k:'name',l:'Experiment',req:1},{k:'hypothesis',l:'Hypothesis',t:'area',wide:1},{k:'pillar',l:'Pillar',t:'sel',o:['',...PILLAR_NAMES]},{k:'metric',l:'Success metric'},
+    {k:'status',l:'Status',t:'sel',o:['Idea','Running','Won','Lost','Inconclusive']},{k:'start',l:'Start',t:'date'},{k:'end',l:'End',t:'date'},
+    {k:'result',l:'Result'},{k:'learning',l:'What we learned',t:'area',wide:1},OWNER],
+    cols:['name','pillar','metric','status','start','result'],stage:'status'},
+  budget:{label:'Budget lines',one:'budget line',title:'item',date:'date',fields:[
+    {k:'item',l:'Item',req:1},{k:'pillar',l:'Pillar',t:'sel',o:PILLAR_NAMES},{k:'category',l:'Category',t:'sel',o:['Events','Content','Paid ads','Grants','Rewards & bounties','Travel','Tools','Contractors','Swag','Other']},
+    CITY,{k:'planned',l:'Planned (USD)',t:'usd'},{k:'actual',l:'Actual (USD)',t:'usd'},{k:'date',l:'Date',t:'date'},{k:'vendor',l:'Vendor / payee'},
+    {k:'status',l:'Status',t:'sel',o:['Planned','Approved','Paid']},OWNER,NOTES],
+    cols:['item','pillar','category','city','planned','actual','status'],stage:'status'},
+  tasks:{label:'Tasks',one:'task',title:'title',date:'due',fields:[
+    {k:'title',l:'Task',req:1},{k:'pillar',l:'Pillar',t:'sel',o:['',...PILLAR_NAMES]},OWNER,{k:'due',l:'Due',t:'date'},
+    {k:'status',l:'Status',t:'sel',o:['To do','Doing','Blocked','Done']},{k:'priority',l:'Priority',t:'sel',o:['High','Medium','Low']},CITY,NOTES],
+    cols:['title','pillar','owner','due','status','priority'],stage:'status'},
+  risks:{label:'Policy, risk & trust log',one:'item',title:'title',date:'review',fields:[
+    {k:'title',l:'Item',req:1},{k:'kind',l:'Kind',t:'sel',o:['Regulatory change','Regulator engagement','Compliance sign-off','Scam / impersonation','Security incident','Partner risk','Reputation','Operational']},
+    {k:'regulator',l:'Body',t:'sel',o:['','SEC Nigeria','CBN','NITDA','FIRS','NDPC','State government','Other']},
+    {k:'likelihood',l:'Likelihood',t:'sel',o:['Low','Medium','High']},{k:'impact',l:'Impact',t:'sel',o:['Low','Medium','High']},
+    {k:'status',l:'Status',t:'sel',o:['Open','Mitigating','Closed']},{k:'reported',l:'Logged',t:'date'},{k:'review',l:'Review / due',t:'date'},
+    {k:'mitigation',l:'Mitigation / response',t:'area',wide:1},OWNER],
+    cols:['title','kind','regulator','likelihood','impact','status','review'],stage:'status'},
+  feedback:{label:'Product feedback',one:'item',title:'title',date:'date',fields:[
+    {k:'title',l:'Feedback',req:1},{k:'kind',l:'Kind',t:'sel',o:['Feature request','Bug','Docs gap','Localization','Ramp / partner blocker']},
+    {k:'product',l:'Product',t:'sel',o:CIRCLE_PRODUCTS},{k:'source',l:'From',t:'sel',o:['Builder','Partner','End user','Event','Ambassador']},
+    {k:'votes',l:'Times raised',t:'num'},{k:'status',l:'Status',t:'sel',o:['Logged','Sent to Arc team','Acknowledged','Shipped','Won’t do']},{k:'date',l:'Logged',t:'date'},NOTES],
+    cols:['title','kind','product','votes','status','date'],stage:'status'},
+  okrs:{label:'OKRs',one:'key result',title:'kr',date:null,fields:[
+    {k:'quarter',l:'Quarter'},{k:'objective',l:'Objective',req:1},{k:'kr',l:'Key result',req:1},{k:'pillar',l:'Pillar',t:'sel',o:['',...PILLAR_NAMES]},
+    {k:'metric',l:'Linked monthly number',t:'metric'},{k:'target',l:'Target',t:'num'},{k:'current',l:'Current (if not linked)',t:'num'},OWNER],
+    cols:['quarter','objective','kr','pillar','target','owner']},
+};
+const COLLS=Object.keys(S);
+
+/* ---------- default settings (config, editable in Settings) ---------- */
+const DEFAULTS={
+  startDate:'2026-10-01',
+  cities:['Lagos','Abuja','Port Harcourt','Enugu','Ibadan','Kano','Benin City','Kaduna','Uyo','Ilorin','Jos','Online / national'],
+  campuses:['UNILAG','OAU','UI','UNN','Covenant','FUTA','ABU','UNIBEN','LASU'],
+  competitors:['Arc','Base','Solana','Celo','Tron (USDT)','Lisk','Sui','Other'],
+  weights:{builders:14,onchain:14,users:12,bd:12,projects:9,community:8,content:7,events:6,education:6,jobs:5,brand:3,policy:2,feedback:2},
+  targets:{maep:1500,usdc_volume:250000,live_apps:15,funded_projects:3,studio_signups:600,studio_mainnet:15,dev_active:150,support_frt_hours:24,
+    wallets:5000,txns:40000,active_apps:10,ramps_live:3,merchants_active:25,remit_volume:50000,end_users:1500,deals_live:3,pipeline_open:30,win_rate:30,
+    content_published:40,engagement_rate:3,sentiment_pos_pct:60,share_of_voice_pct:15,members_active:800,ambassadors_active:20,
+    events_done:6,attendance_rate:60,placements:10,bounties_paid:15,enrolled:200,completion_rate:50,projects_mainnet:15,grants_paid:25000,
+    feedback_shipped_pct:20,open_high_risks:0},
+};
+
+/* ---------- state ---------- */
+const st={db:null,user:null,dl:null,canWrite:false,mode:'connecting',data:Object.fromEntries(COLLS.map(c=>[c,[]])),metrics:[],settings:null,
+  tab:'overview',city:'All',period:'90',search:{},sort:{},openPerson:null,loaded:new Set()};
+const set=()=>({...DEFAULTS,...(st.settings||{}),weights:{...DEFAULTS.weights,...(st.settings?.weights||{})},targets:{...DEFAULTS.targets,...(st.settings?.targets||{})}});
+
+/* ---------- utils ---------- */
+const $=(q,el=document)=>el.querySelector(q);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const num=v=>{const n=Number(v);return Number.isFinite(n)?n:0};
+const has=v=>v!==undefined&&v!==null&&v!=='';
+const sum=(a,f)=>a.reduce((t,r)=>t+num(typeof f==='function'?f(r):r[f]),0);
+const today=()=>new Date().toISOString().slice(0,10);
+const daysBetween=(a,b)=>Math.round((new Date(b)-new Date(a))/864e5);
+const addDays=(d,n)=>{const x=new Date(d);x.setDate(x.getDate()+n);return x.toISOString().slice(0,10)};
+function fmtN(n){n=num(n);const a=Math.abs(n);if(a>=1e9)return(n/1e9).toFixed(1).replace(/\.0$/,'')+'B';if(a>=1e6)return(n/1e6).toFixed(1).replace(/\.0$/,'')+'M';if(a>=1e4)return(n/1e3).toFixed(1).replace(/\.0$/,'')+'k';return Math.round(n).toLocaleString('en-US')}
+const fmtUSD=n=>'$'+fmtN(n);
+const fmtPct=n=>(Math.round(num(n)*10)/10)+'%';
+function fmtBy(f,v){if(!has(v))return'—';return f==='usd'?fmtUSD(v):f==='pct'?fmtPct(v):f==='h'?Math.round(num(v)*10)/10+'h':fmtN(v)}
+const fmtDate=d=>{if(!d)return'—';const x=new Date(d+'T00:00:00');return isNaN(x)?esc(d):x.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'})};
+const monthLabel=id=>{const [y,m]=id.split('-');return new Date(+y,+m-1,1).toLocaleDateString('en-GB',{month:'short',year:'2-digit'})};
+const pct=(a,b)=>b>0?a/b*100:null;
+let afterFns=[];const after=f=>afterFns.push(f);
+let uid=0;const nid=p=>p+'-'+(++uid);
+function toast(msg){const t=document.createElement('div');t.className='toast';t.setAttribute('role','status');t.textContent=msg;document.body.appendChild(t);setTimeout(()=>t.remove(),2600)}
+
+/* ---------- filtering ---------- */
+function inPeriod(d){if(st.period==='all'||!d)return true;return daysBetween(d,today())<=+st.period}
+function inCity(r){if(st.city==='All')return true;return !r.city||r.city===st.city||r.city==='Online / national'}
+const ALL=c=>st.data[c]||[];
+const R=(c,opts={})=>ALL(c).filter(r=>inCity(r)&&(opts.noPeriod||inPeriod(S[c].date?r[S[c].date]:null)));
+const M=()=>st.metrics; // sorted asc
+const latest=()=>M().length?M()[M().length-1]:null;
+const prev=()=>M().length>1?M()[M().length-2]:null;
+const mv=k=>{const l=latest();return l&&has(l[k])?num(l[k]):null};
+const mprev=k=>{const p=prev();return p&&has(p[k])?num(p[k]):null};
+const series=k=>M().filter(m=>has(m[k])).map(m=>({x:m.id,y:num(m[k])}));
+
+/* ---------- status from target ---------- */
+function ratio(v,t,lower){if(v===null||v===undefined||!t)return null;if(lower)return v<=0?1:Math.min(t/v,1.5);return v/t}
+function statusOf(r){if(r===null)return{c:'',t:'No target'};if(r>=1)return{c:'good',t:'On track'};if(r>=.7)return{c:'warn',t:'At risk'};return{c:'bad',t:'Off track'}}
+const statusPill=r=>{const s=statusOf(r);return `<span class="status ${s.c}">${s.t}</span>`};
+
+/* ---------- computed KPIs (respect filters) ---------- */
+const K={
+  ramps_live:()=>ALL('ramps').filter(r=>r.status==='Live').length,
+  deals_live:()=>R('deals',{noPeriod:1}).filter(d=>['Live','Expanding'].includes(d.stage)).length,
+  pipeline_open:()=>R('deals',{noPeriod:1}).filter(d=>!['Live','Expanding','Lost'].includes(d.stage)).length,
+  win_rate:()=>{const d=R('deals',{noPeriod:1});const w=d.filter(x=>['Signed','Integrating','Live','Expanding'].includes(x.stage)).length;const l=d.filter(x=>x.stage==='Lost').length;return w+l?w/(w+l)*100:null},
+  content_published:()=>R('content').filter(c=>c.status==='Published').length,
+  engagement_rate:()=>{const c=R('content').filter(c=>c.status==='Published');const i=sum(c,'impressions');return i?sum(c,'engagements')/i*100:null},
+  ambassadors_active:()=>R('ambassadors',{noPeriod:1}).filter(a=>['Active','Top tier'].includes(a.tier)).length,
+  events_done:()=>R('events').filter(e=>e.status==='Done').length,
+  attendance_rate:()=>{const e=R('events').filter(e=>e.status==='Done');const r=sum(e,'rsvps');return r?sum(e,'attended')/r*100:null},
+  placements:()=>sum(R('jobs').filter(j=>j.kind==='Job'),'hires'),
+  bounties_paid:()=>R('jobs').filter(j=>j.kind==='Bounty'&&['Paid','Filled'].includes(j.status)).length,
+  enrolled:()=>sum(R('courses'),'enrolled'),
+  completion_rate:()=>{const c=R('courses');const s=sum(c,'started');return s?sum(c,'completed')/s*100:null},
+  projects_mainnet:()=>R('projects',{noPeriod:1}).filter(p=>['Mainnet','Users','Revenue','Funded','Scaling'].includes(p.stage)).length,
+  grants_paid:()=>sum(R('grants',{noPeriod:1}),'paid'),
+  feedback_shipped_pct:()=>{const f=R('feedback',{noPeriod:1});return f.length?f.filter(x=>x.status==='Shipped').length/f.length*100:null},
+  open_high_risks:()=>ALL('risks').filter(r=>r.status!=='Closed'&&r.impact==='High'&&r.likelihood!=='Low').length,
+};
+const val=k=>K[k]?K[k]():mv(k);
+
+/* ---------- pillars + health index ---------- */
+const PILLARS=[
+  {id:'builders',name:'Builders & Arc Studio',tab:'builders',c:'--s1',kpis:['studio_signups','studio_mainnet','dev_active']},
+  {id:'education',name:'Education & talent',tab:'education',c:'--s2',kpis:['enrolled','completion_rate']},
+  {id:'projects',name:'Projects & funding',tab:'projects',c:'--s3',kpis:['projects_mainnet','grants_paid','funded_projects']},
+  {id:'onchain',name:'Onchain & apps',tab:'onchain',c:'--s4',kpis:['usdc_volume','wallets','active_apps']},
+  {id:'users',name:'Users, ramps & merchants',tab:'users',c:'--s5',kpis:['ramps_live','merchants_active','remit_volume']},
+  {id:'bd',name:'BD & partnerships',tab:'bd',c:'--s6',kpis:['deals_live','pipeline_open','win_rate']},
+  {id:'content',name:'Content & social',tab:'content',c:'--s7',kpis:['content_published','engagement_rate']},
+  {id:'brand',name:'Brand, PR & intel',tab:'brand',c:'--s8',kpis:['sentiment_pos_pct','share_of_voice_pct']},
+  {id:'community',name:'Community & ambassadors',tab:'community',c:'--s1',kpis:['members_active','ambassadors_active']},
+  {id:'events',name:'Events',tab:'events',c:'--s2',kpis:['events_done','attendance_rate']},
+  {id:'jobs',name:'Jobs & bounties',tab:'jobs',c:'--s3',kpis:['placements','bounties_paid']},
+  {id:'policy',name:'Policy, risk & trust',tab:'policy',c:'--s4',kpis:['open_high_risks'],special:'risk'},
+  {id:'feedback',name:'Product feedback',tab:'feedback',c:'--s5',kpis:['feedback_shipped_pct']},
+];
+const KLABEL={ramps_live:'Ramps live on Arc',deals_live:'Live partner integrations',pipeline_open:'Open pipeline deals',win_rate:'Deal win rate',content_published:'Pieces published',engagement_rate:'Engagement rate',
+  ambassadors_active:'Active ambassadors',events_done:'Events run',attendance_rate:'RSVP → attendance',placements:'Job placements',bounties_paid:'Bounties paid',enrolled:'Learners enrolled',completion_rate:'Course completion',
+  projects_mainnet:'Projects on mainnet+',grants_paid:'Grants paid (USDC)',feedback_shipped_pct:'Feedback shipped',open_high_risks:'Open high risks'};
+const KFMT={win_rate:'pct',engagement_rate:'pct',attendance_rate:'pct',completion_rate:'pct',grants_paid:'usd',feedback_shipped_pct:'pct'};
+const klabel=k=>KLABEL[k]||MDEF[k]?.l||k;
+const kfmt=k=>KFMT[k]||MDEF[k]?.f;
+function pillarScore(p){
+  const T=set().targets;
+  if(p.special==='risk'){const n=K.open_high_risks();return Math.max(0,100-25*n)}
+  const rs=p.kpis.map(k=>ratio(val(k),T[k],MDEF[k]?.lower)).filter(r=>r!==null);
+  if(!rs.length)return null;
+  return Math.round(rs.reduce((a,r)=>a+Math.min(r,1),0)/rs.length*100);
+}
+function healthIndex(){
+  const W=set().weights;let tw=0,ts=0;
+  PILLARS.forEach(p=>{const s=pillarScore(p);if(s===null)return;const w=num(W[p.id]);tw+=w;ts+=w*s});
+  return tw?Math.round(ts/tw):null;
+}
+
+/* ---------- alerts, guardrails, calendar ---------- */
+function alerts(){
+  const out=[],T=set().targets,t=today();
+  PILLARS.forEach(p=>p.kpis.forEach(k=>{const r=ratio(val(k),T[k],MDEF[k]?.lower);if(r!==null&&r<.7&&k!=='open_high_risks')out.push({sev:'serious',text:`${klabel(k)} is at ${Math.round(r*100)}% of target (${fmtBy(kfmt(k),val(k))} vs ${fmtBy(kfmt(k),T[k])})`,tab:p.tab})}));
+  METRICS.forEach(m=>{const a=mv(m.k),b=mprev(m.k);if(a===null||b===null||b<=0)return;const ch=(a-b)/b;if(!m.lower&&ch<=-.15)out.push({sev:'warning',text:`${m.l} fell ${Math.round(-ch*100)}% month on month`,tab:'metrics'});if(m.k==='studio_signups'&&ch>=1.5)out.push({sev:'warning',text:`Studio sign-ups jumped ${Math.round(ch*100)}%: check for fake or farmed accounts`,tab:'builders'})});
+  const l=latest();if(!l)out.push({sev:'warning',text:'No monthly numbers entered yet',tab:'metrics'});else{const cur=t.slice(0,7);if(l.id<addDays(t,-45).slice(0,7))out.push({sev:'warning',text:`Monthly numbers are stale (last: ${monthLabel(l.id)})`,tab:'metrics'});else if(l.id<cur&&+t.slice(8)>7)out.push({sev:'warning',text:`${monthLabel(cur)} numbers not entered yet`,tab:'metrics'})}
+  ALL('deals').forEach(d=>{if(['Lost','Live','Expanding'].includes(d.stage))return;if(d.lastContact&&daysBetween(d.lastContact,t)>14)out.push({sev:'warning',text:`${d.org}: no contact in ${daysBetween(d.lastContact,t)} days`,tab:'bd'});if(d.nextDate&&d.nextDate<t)out.push({sev:'serious',text:`${d.org}: next step overdue (${d.nextStep||'follow up'})`,tab:'bd'})});
+  ALL('tasks').forEach(x=>{if(x.status!=='Done'&&x.due&&x.due<t)out.push({sev:x.priority==='High'?'serious':'warning',text:`Overdue task: ${x.title}${x.owner?' ('+x.owner+')':''}`,tab:'tasks'});if(x.status==='Blocked')out.push({sev:'warning',text:`Blocked: ${x.title}`,tab:'tasks'})});
+  ALL('risks').forEach(r=>{if(r.status==='Closed')return;if(r.kind==='Scam / impersonation')out.push({sev:'critical',text:`Open scam / impersonation report: ${r.title}`,tab:'policy'});else if(r.impact==='High'&&r.likelihood==='High')out.push({sev:'critical',text:`High-likelihood, high-impact risk: ${r.title}`,tab:'policy'});if(r.review&&r.review<t)out.push({sev:'warning',text:`Risk review overdue: ${r.title}`,tab:'policy'})});
+  ALL('grants').forEach(g=>{if(['Approved','Milestones'].includes(g.status)&&g.nextMs&&g.nextMs<t)out.push({sev:'warning',text:`Grant milestone overdue: ${g.project}`,tab:'projects'})});
+  ALL('ramps').forEach(r=>{if(r.status==='Live'&&r.updated&&daysBetween(r.updated,t)>30)out.push({sev:'warning',text:`${r.venue}: Arc support not re-checked in ${daysBetween(r.updated,t)} days`,tab:'users'})});
+  ALL('mentions').filter(m=>m.sentiment==='Negative'&&inPeriod(m.date)&&daysBetween(m.date,t)<=7).forEach(m=>out.push({sev:'serious',text:`Negative mention this week: ${m.title}`,tab:'brand'}));
+  ALL('budget').length&&(()=>{const p=sum(ALL('budget'),'planned'),a=sum(ALL('budget'),'actual');if(p&&a>p)out.push({sev:'serious',text:`Spend ${fmtUSD(a)} is over plan ${fmtUSD(p)}`,tab:'budget'})})();
+  const rank={critical:0,serious:1,warning:2};return out.sort((a,b)=>rank[a.sev]-rank[b.sev]);
+}
+function guardrails(){
+  const g=[];const apps=ALL('projects').filter(p=>num(p.volume)>0);const tot=sum(apps,'volume');
+  if(tot){const top=apps.reduce((a,b)=>num(b.volume)>num(a.volume)?b:a);const share=num(top.volume)/tot*100;g.push({ok:share<50,t:`Volume concentration: top app ${esc(top.name)} has ${fmtPct(share)} of Nigerian app volume`,hint:'Over 50% means one app or wallet cluster could be distorting the total.'})}
+  const done=R('events').filter(e=>e.status==='Done');const zero=done.filter(e=>!num(e.signups)&&!num(e.shipped));
+  if(done.length)g.push({ok:zero.length===0,t:`${zero.length} of ${done.length} events had no sign-ups or shipped work afterwards`,hint:'Attendance without follow-through does not count as growth.'});
+  const a=mv('studio_signups'),b=mprev('studio_signups');if(a!==null&&b){const ch=(a-b)/b*100;g.push({ok:ch<150,t:`Studio sign-ups changed ${ch>=0?'+':''}${Math.round(ch)}% month on month`,hint:'Jumps over 150% get checked for farmed or fake accounts before they count.'})}
+  const ms=R('mentions');if(ms.length){const neg=ms.filter(m=>m.sentiment==='Negative').length/ms.length*100;g.push({ok:neg<20,t:`${fmtPct(neg)} of logged mentions are negative`,hint:'Over 20% needs a response plan.'})}
+  const scams=ALL('risks').filter(r=>r.kind==='Scam / impersonation'&&r.status!=='Closed').length;g.push({ok:scams===0,t:`${scams} open scam or impersonation report${scams===1?'':'s'}`,hint:'Fake Arc-branded tokens, sites and accounts are taken down and warned about.'});
+  return g;
+}
+function calendarItems(){
+  const it=[];const push=(d,title,kind,tab,extra='')=>{if(d)it.push({d,title,kind,tab,extra})};
+  ALL('events').forEach(e=>e.status!=='Cancelled'&&push(e.date,e.name,'Event','events',[e.type,e.city].filter(Boolean).join(' · ')));
+  ALL('content').forEach(c=>c.status!=='Published'&&push(c.date,c.title,'Content','content',[c.format,c.platform].filter(Boolean).join(' · ')));
+  ALL('tasks').forEach(x=>x.status!=='Done'&&push(x.due,x.title,'Task','tasks',x.owner||''));
+  ALL('deals').forEach(d=>!['Lost'].includes(d.stage)&&push(d.nextDate,`${d.org}: ${d.nextStep||'next step'}`,'BD','bd',d.stage||''));
+  ALL('grants').forEach(g=>['Approved','Milestones'].includes(g.status)&&push(g.nextMs,`${g.project} milestone`,'Grant','projects',g.round||''));
+  ALL('jobs').forEach(j=>['Open','Shortlisting','Interviewing'].includes(j.status)&&push(j.deadline,`${j.title} closes`,'Job','jobs',j.company||''));
+  ALL('campaigns').forEach(c=>{push(c.start,`${c.name} starts`,'Campaign','growth',c.channel||'');push(c.end,`${c.name} ends`,'Campaign','growth',c.channel||'')});
+  ALL('risks').forEach(r=>r.status!=='Closed'&&push(r.review,`Review: ${r.title}`,'Risk','policy',r.regulator||r.kind||''));
+  ALL('courses').forEach(c=>c.status==='Planned'&&push(c.start,`${c.name} starts`,'Education','education',c.partner||''));
+  return it.sort((a,b)=>a.d.localeCompare(b.d));
+}
+
+/* ---------- city health index ---------- */
+function cityHealth(){
+  const cities=set().cities.filter(c=>c!=='Online / national');
+  const dims=[
+    ['People',c=>ALL('contacts').filter(r=>r.city===c).length],
+    ['Events run',c=>ALL('events').filter(r=>r.city===c&&r.status==='Done'&&inPeriod(r.date)).length],
+    ['Projects live',c=>ALL('projects').filter(r=>r.city===c&&['Mainnet','Users','Revenue','Funded','Scaling'].includes(r.stage)).length],
+    ['Ambassadors',c=>ALL('ambassadors').filter(r=>r.city===c&&['Active','Top tier'].includes(r.tier)).length],
+    ['Partners live',c=>ALL('deals').filter(r=>r.city===c&&['Live','Expanding'].includes(r.stage)).length],
+    ['Learners',c=>sum(ALL('courses').filter(r=>r.city===c),'enrolled')],
+  ];
+  const rows=cities.map(c=>({c,v:dims.map(d=>d[1](c))}));
+  const max=dims.map((_,i)=>Math.max(1,...rows.map(r=>r.v[i])));
+  rows.forEach(r=>{r.score=Math.round(r.v.reduce((a,v,i)=>a+v/max[i],0)/dims.length*100)});
+  return {dims:dims.map(d=>d[0]),rows:rows.sort((a,b)=>b.score-a.score)};
+}
+
+/* ---------- chart helpers ---------- */
+const cssv=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+function niceMax(v){if(v<=0)return 1;const p=Math.pow(10,Math.floor(Math.log10(v)));const n=v/p;return (n<=1?1:n<=2?2:n<=2.5?2.5:n<=5?5:10)*p}
+function lineChart(el,{lines,fmt,height=190}){
+  if(!el)return;const pts=lines.flatMap(l=>l.pts);
+  if(!pts.length){el.innerHTML='<div class="empty">No monthly numbers yet. Add them in <button class="link" data-go="metrics">Monthly numbers</button>.</div>';return}
+  const xs=[...new Set(pts.map(p=>p.x))].sort();const W=Math.max(260,el.clientWidth||600),H=height,ml=46,mr=14,mt=10,mb=24;
+  const ymax=niceMax(Math.max(...pts.map(p=>p.y)));const X=i=>xs.length===1?ml+(W-ml-mr)/2:ml+i*(W-ml-mr)/(xs.length-1);const Y=v=>mt+(H-mt-mb)*(1-v/ymax);
+  const f=v=>fmtBy(fmt,v);let svg=`<svg viewBox="0 0 ${W} ${H}" height="${H}" role="img" aria-label="${esc(lines.map(l=>l.name).join(', '))} by month">`;
+  svg+='<g class="grid">';for(let i=0;i<=4;i++){const v=ymax*i/4;svg+=`<line x1="${ml}" x2="${W-mr}" y1="${Y(v)}" y2="${Y(v)}"/>`}svg+='</g><g class="axis">';
+  for(let i=0;i<=4;i++){const v=ymax*i/4;svg+=`<text x="${ml-6}" y="${Y(v)+4}" text-anchor="end">${f(v)}</text>`}
+  const step=Math.ceil(xs.length/Math.max(2,Math.floor((W-ml-mr)/56)));xs.forEach((x,i)=>{if(i%step===0||i===xs.length-1)svg+=`<text x="${X(i)}" y="${H-6}" text-anchor="middle">${monthLabel(x)}</text>`});svg+='</g>';
+  lines.forEach((l,li)=>{const c=`var(${l.c})`;const p=l.pts.map(pt=>[X(xs.indexOf(pt.x)),Y(pt.y)]);if(!p.length)return;
+    if(lines.length===1&&p.length>1)svg+=`<path d="M${p[0][0]},${Y(0)} ${p.map(q=>'L'+q[0]+','+q[1]).join(' ')} L${p[p.length-1][0]},${Y(0)} Z" fill="${c}" fill-opacity=".1"/>`;
+    svg+=`<path d="${p.map((q,i)=>(i?'L':'M')+q[0]+','+q[1]).join(' ')}" fill="none" stroke="${c}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>`;
+    const e=p[p.length-1];svg+=`<circle cx="${e[0]}" cy="${e[1]}" r="4" fill="${c}" stroke="var(--panel)" stroke-width="2"/>`});
+  svg+=`<line class="xh" x1="0" x2="0" y1="${mt}" y2="${H-mb}" stroke="var(--line-2)" visibility="hidden"/><g class="hd"></g><rect x="${ml}" y="0" width="${W-ml-mr}" height="${H}" fill="transparent"/></svg>`;
+  const legend=lines.length>1?`<div class="legend">${lines.map(l=>`<span><i style="background:var(${l.c})"></i>${esc(l.name)}</span>`).join('')}</div>`:'';
+  el.innerHTML=legend+svg+'<div class="tip" hidden></div>';
+  const s=el.querySelector('svg'),tip=el.querySelector('.tip'),xh=s.querySelector('.xh'),hd=s.querySelector('.hd');
+  const move=ev=>{const r=s.getBoundingClientRect();const sx=(ev.clientX-r.left)*W/r.width;let i=0,b=1e9;xs.forEach((x,j)=>{const d=Math.abs(X(j)-sx);if(d<b){b=d;i=j}});
+    xh.setAttribute('x1',X(i));xh.setAttribute('x2',X(i));xh.setAttribute('visibility','visible');
+    hd.innerHTML=lines.map(l=>{const p=l.pts.find(q=>q.x===xs[i]);return p?`<circle cx="${X(i)}" cy="${Y(p.y)}" r="4.5" fill="var(${l.c})" stroke="var(--panel)" stroke-width="2"/>`:''}).join('');
+    tip.innerHTML=`<b>${monthLabel(xs[i])}</b>`+lines.map(l=>{const p=l.pts.find(q=>q.x===xs[i]);return `<div class="r"><span><span class="sw" style="background:var(${l.c})"></span>${esc(l.name)}</span><span class="mono">${p?f(p.y):'—'}</span></div>`}).join('');
+    tip.hidden=false;const er=el.getBoundingClientRect();const px=X(i)*r.width/W+(r.left-er.left);const tw=tip.offsetWidth;let left=px+12;if(left+tw>er.width)left=px-tw-12;tip.style.left=Math.max(0,left)+'px';tip.style.top=(r.top-er.top+8)+'px'};
+  s.addEventListener('pointermove',move);s.addEventListener('pointerleave',()=>{tip.hidden=true;xh.setAttribute('visibility','hidden');hd.innerHTML=''});
+}
+function bars(rows,{fmt,color='--s1',max}={}){
+  rows=rows.filter(r=>r);if(!rows.length||rows.every(r=>!num(r.v)))return '<div class="empty">Nothing recorded yet for this filter.</div>';
+  const m=max||Math.max(...rows.map(r=>num(r.v)),1);
+  return `<div class="bars">${rows.map(r=>`<div class="bar" title=""><span class="l">${esc(r.l)}</span><span class="t"><i style="width:${num(r.v)/m*100}%;background:var(${r.c||color})"></i></span><span class="v">${fmtBy(fmt,r.v)}</span></div>`).join('')}</div>`;
+}
+function funnel(steps,{fmt}={}){
+  if(!steps.length||steps.every(s=>!num(s.v)))return '<div class="empty">No funnel numbers yet for this filter.</div>';
+  const top=Math.max(...steps.map(s=>num(s.v)),1);let worst=-1,wv=2;
+  steps.forEach((s,i)=>{if(i&&num(steps[i-1].v)>0){const c=num(s.v)/num(steps[i-1].v);if(c<wv){wv=c;worst=i}}});
+  return `<div class="bars funnel">${steps.map((s,i)=>{const c=i&&num(steps[i-1].v)>0?num(s.v)/num(steps[i-1].v)*100:null;
+    return `<div class="bar${i===worst?' drop':''}"><span class="l">${esc(s.l)}</span><span class="t"><i style="width:${num(s.v)/top*100}%;background:var(--s1)"></i></span><span class="v">${fmtBy(fmt,s.v)}</span><span class="c">${c===null?'':Math.round(c)+'%'}${i===worst?' ▼':''}</span></div>`}).join('')}</div>
+    ${worst>0?`<p class="small muted" style="margin:8px 0 0">Biggest drop-off: <b>${esc(steps[worst-1].l)} → ${esc(steps[worst].l)}</b> (${Math.round(wv*100)}% convert). Percentages are step-to-step.</p>`:''}`;
+}
+function spark(k){const s=series(k).slice(-8);if(s.length<2)return'';const W=160,H=28,mx=Math.max(...s.map(p=>p.y)),mn=Math.min(...s.map(p=>p.y));const r=mx-mn||1;
+  const p=s.map((q,i)=>[i*(W-4)/(s.length-1)+2,H-3-(q.y-mn)/r*(H-6)]);const e=p[p.length-1];
+  return `<svg class="spark" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" aria-hidden="true"><path d="${p.map((q,i)=>(i?'L':'M')+q[0].toFixed(1)+','+q[1].toFixed(1)).join(' ')}" fill="none" stroke="var(--accent)" stroke-width="1.5" vector-effect="non-scaling-stroke"/><circle cx="${e[0]}" cy="${e[1]}" r="2.5" fill="var(--accent)"/></svg>`}
+function countBy(rows,k,order){const m={};rows.forEach(r=>{const v=r[k]||'Unspecified';m[v]=(m[v]||0)+1});const keys=order?order.filter(o=>m[o]).concat(Object.keys(m).filter(x=>!order.includes(x))):Object.keys(m).sort((a,b)=>m[b]-m[a]);return keys.map(x=>({l:x,v:m[x]}))}
+function sumBy(rows,k,f){const m={};rows.forEach(r=>{const v=r[k]||'Unspecified';m[v]=(m[v]||0)+num(r[f])});return Object.keys(m).sort((a,b)=>m[b]-m[a]).map(x=>({l:x,v:m[x]}))}
+
+/* ---------- building blocks ---------- */
+function tile(k,{label,value,fmt,sub='',target,lower,sparkKey}={}){
+  const T=set().targets;const v=value!==undefined?value:val(k);const t=target!==undefined?target:T[k];const f=fmt!==undefined?fmt:kfmt(k);
+  const r=ratio(v,t,lower!==undefined?lower:MDEF[k]?.lower);let delta='';
+  if(MDEF[k]&&value===undefined){const a=mv(k),b=mprev(k);if(a!==null&&b){const ch=(a-b)/b*100;const good=MDEF[k].lower?ch<=0:ch>=0;delta=`<span class="${good?'up':'down'}">${ch>=0?'▲':'▼'} ${Math.abs(Math.round(ch))}% MoM</span>`}}
+  return `<div class="tile"><span class="lbl">${esc(label||klabel(k))}</span><span class="val">${v===null||v===undefined?'—':fmtBy(f,v)}</span>
+    <span class="sub">${t?statusPill(r)+`<span>target ${fmtBy(f,t)}</span>`:''}${delta}${sub?`<span>${sub}</span>`:''}</span>${sparkKey!==false&&MDEF[k]?spark(k):''}</div>`;
+}
+const tiles=a=>`<div class="grid tiles">${a.join('')}</div>`;
+const card=(title,body,sub='')=>`<div class="card"><h3>${title}${sub?`<small>${sub}</small>`:''}</h3>${body}</div>`;
+function chartSlot(fn){const id=nid('ch');after(()=>fn($('#'+id)));return `<div class="chart" id="${id}"></div>`}
+function head(eyebrow,title,desc,actions=''){return `<div class="viewhead"><div><div class="eyebrow">${esc(eyebrow)}</div><h1>${esc(title)}</h1>${desc?`<p>${desc}</p>`:''}</div>${actions?`<div style="display:flex;gap:8px;flex-wrap:wrap">${actions}</div>`:''}</div>`}
+const sourceNote=()=>{const l=latest();return l?`Monthly numbers · ${monthLabel(l.id)}`:'No monthly numbers yet'};
+
+/* ---------- record tables ---------- */
+function fieldDef(c,k){return S[c].fields.find(f=>f.k===k)}
+function cellHtml(c,f,r){const v=r[f.k];if(!has(v))return '<span class="muted">—</span>';
+  if(f.t==='num')return fmtN(v);if(f.t==='usd')return fmtUSD(v);if(f.t==='date')return fmtDate(v);
+  if(S[c].stage===f.k)return `<span class="status ${stageClass(v)}">${esc(v)}</span>`;
+  if(f.k==='health'||f.k==='impact'||f.k==='likelihood'||f.k==='sentiment'||f.k==='priority')return `<span class="status ${stageClass(v)}">${esc(v)}</span>`;
+  return esc(v)}
+function stageClass(v){return ({Live:'good',Expanding:'good',Done:'good',Completed:'good',Published:'good',Shipped:'good',Paid:'good',Filled:'good',Won:'good',Active:'good','Top tier':'good',Positive:'good',Closed:'',Low:'good',
+  'At risk':'warn',Testing:'warn',Medium:'warn',Mitigating:'warn',Blocked:'bad',Lost:'bad',Rejected:'bad',Churned:'bad',Dormant:'serious',High:'bad',Negative:'bad',Open:'warn','Not supported':'bad',Inactive:'serious',Running:'warn',Doing:'warn',Approved:'warn',Milestones:'warn'})[v]||''}
+function table(c,{rows,title,cols,note}={}){
+  const id='tbl-'+c+'-'+(++uid);const sc=S[c];cols=cols||sc.cols;
+  after(()=>renderTable(id,c,rows,cols));
+  return `<div class="section"><h2>${esc(title||sc.label)}${note?`<small>${note}</small>`:''}</h2><div class="tbltools">
+    <span class="grow"><input class="ctl" type="search" id="${id}-q" placeholder="Search ${esc(sc.label.toLowerCase())}" value="${esc(st.search[c]||'')}" aria-label="Search ${esc(sc.label)}"></span>
+    ${st.canWrite?`<button class="btn primary small" data-add="${c}">Add ${esc(sc.one)}</button>`:''}
+    <button class="btn small" data-export="${c}">Export CSV</button>${st.canWrite?`<button class="btn small" data-import="${c}">Import CSV</button>`:''}
+  </div><div class="tblwrap" id="${id}"></div></div>`;
+}
+function renderTable(id,c,rows,cols){
+  const wrap=$('#'+id);if(!wrap)return;const sc=S[c];const q=(st.search[c]||'').toLowerCase();
+  let data=(rows||R(c)).slice();
+  if(q)data=data.filter(r=>sc.fields.some(f=>String(r[f.k]??'').toLowerCase().includes(q)));
+  const so=st.sort[c]||{k:sc.date||sc.title,d:-1};
+  data.sort((a,b)=>{const f=fieldDef(c,so.k);let x=a[so.k],y=b[so.k];if(f&&(f.t==='num'||f.t==='usd')){x=num(x);y=num(y)}else{x=String(x??'');y=String(y??'')}return (x>y?1:x<y?-1:0)*so.d});
+  if(!data.length){wrap.innerHTML=`<div class="empty" style="border:0">${q?'No matches.':`No ${esc(sc.label.toLowerCase())} yet.`} ${st.canWrite&&!q?`<button class="link" data-add="${c}">Add the first ${esc(sc.one)}</button> or import a CSV.`:''}</div>`;return}
+  const fdefs=cols.map(k=>fieldDef(c,k)).filter(Boolean);
+  wrap.innerHTML=`<table class="rec"><thead><tr>${fdefs.map(f=>`<th class="${f.t==='num'||f.t==='usd'?'num':''}" data-sort="${c}:${f.k}" aria-sort="${so.k===f.k?(so.d>0?'ascending':'descending'):'none'}">${esc(f.l)}${so.k===f.k?(so.d>0?' ↑':' ↓'):''}</th>`).join('')}</tr></thead>
+  <tbody>${data.map(r=>`<tr data-open="${c}:${esc(r.id)}" tabindex="0">${fdefs.map((f,i)=>`<td class="${f.t==='num'||f.t==='usd'?'num':''}">${cellHtml(c,f,r)}${i===0&&r.example?'<span class="ex">Example</span>':''}</td>`).join('')}</tr>`).join('')}</tbody></table>`;
+  const qi=$('#'+id+'-q');if(qi&&!qi._b){qi._b=1;qi.addEventListener('input',()=>{st.search[c]=qi.value;renderTable(id,c,rows,cols)})}
+}
+
+/* ---------- views ---------- */
+const NAV=[
+  ['Command',[['overview','Overview'],['okrs','OKRs & phases'],['alerts','Alerts & guardrails'],['reports','Reports']]],
+  ['Build',[['builders','Builders & Arc Studio'],['education','Education & talent'],['projects','Projects & grants'],['feedback','Product feedback']]],
+  ['Adopt',[['onchain','Onchain & apps'],['users','Users, ramps & merchants'],['bd','BD & partners']]],
+  ['Reach',[['content','Content & social'],['brand','Brand, PR & intel'],['community','Community & ambassadors'],['events','Events']]],
+  ['Talent',[['jobs','Jobs & bounties']]],
+  ['Operate',[['growth','Campaigns & experiments'],['budget','Budget & ROI'],['tasks','Team & tasks'],['calendar','Calendar'],['policy','Policy, risk & trust']]],
+  ['Data',[['directory','Directory'],['metrics','Monthly numbers'],['data','Import & export'],['settings','Settings']]],
+];
+const V={};
+
+V.overview=()=>{
+  const T=set().targets,hi=healthIndex();const a=alerts();const cal=calendarItems().filter(x=>x.d>=today()&&x.d<=addDays(today(),14));
+  const ch=cityHealth();
+  return head('Command center','Arc Nigeria ecosystem',`Growth across builders, content, community, BD, jobs, onchain usage and trust. ${sourceNote()}; records are live team data${st.city!=='All'?' filtered to '+esc(st.city):''}.`)+
+  `<div class="hero"><div class="card"><div class="eyebrow">North Star</div><h3 style="margin:4px 0 0">Monthly active ecosystem participants</h3>
+    <div class="big">${mv('maep')===null?'—':fmtN(mv('maep'))}</div>
+    <div class="sub small" style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">${statusPill(ratio(mv('maep'),T.maep))}<span class="muted">target ${fmtN(T.maep)}</span>${(()=>{const x=mv('maep'),y=mprev('maep');if(x===null||!y)return'';const c=(x-y)/y*100;return `<span class="${c>=0?'up':'down'}">${c>=0?'▲':'▼'} ${Math.abs(Math.round(c))}% MoM</span>`})()}</div>
+    <p class="small muted" style="margin:10px 0 0">People or orgs who shipped, transacted, learned, attended, published, got hired or paid, got funded, or moved a partnership forward this month.</p>
+    ${chartSlot(el=>lineChart(el,{lines:[{name:'Participants',c:'--accent',pts:series('maep')}],height:140}))}</div>
+   <div class="grid" style="grid-template-columns:repeat(2,minmax(0,1fr))">
+    ${tile('usdc_volume',{label:'Nigerian USDC volume on Arc'})}${tile('live_apps')}${tile('funded_projects')}
+    <div class="tile"><span class="lbl">Ecosystem Health Index</span><span class="val">${hi===null?'—':hi}<span class="small muted"> / 100</span></span><span class="sub">${hi===null?'<span>Add numbers and targets</span>':statusPill(hi/80)+'<span>weighted across 13 pillars</span>'}</span></div>
+   </div></div>`+
+  `<div class="section"><h2>Pillars<small>score = progress to target, capped at 100 · click to open</small></h2><div class="grid pillars">${PILLARS.map(p=>{const s=pillarScore(p);const k=p.kpis[0];
+    return `<button class="pcard" data-go="${p.tab}"><span class="row"><span class="small" style="font-weight:600">${esc(p.name)}</span><span class="score">${s===null?'—':s}</span></span><span class="meter"><i style="width:${s||0}%"></i></span><span class="row"><span class="kpi">${esc(klabel(k))}: ${fmtBy(kfmt(k),val(k))}</span>${statusPill(s===null?null:s/80)}</span></button>`}).join('')}</div></div>`+
+  `<div class="section grid cols-2">${card('USDC volume by month',chartSlot(el=>lineChart(el,{lines:[{name:'USDC volume',c:'--s1',pts:series('usdc_volume')}],fmt:'usd'})))}
+   ${card('Live apps and active apps',chartSlot(el=>lineChart(el,{lines:[{name:'Live apps',c:'--s1',pts:series('live_apps')},{name:'Weekly active apps',c:'--s2',pts:series('active_apps')}]})))}</div>`+
+  `<div class="section grid cols-3">${card('Needs attention',a.length?`<div class="list">${a.slice(0,6).map(x=>`<div class="item"><span class="status ${x.sev==='critical'?'bad':x.sev==='serious'?'serious':'warn'}">${x.sev}</span><span class="grow">${esc(x.text)}</span><button class="link small" data-go="${x.tab}">Open</button></div>`).join('')}</div>${a.length>6?`<button class="link small" data-go="alerts">See all ${a.length}</button>`:''}`:'<div class="empty">Nothing needs attention.</div>')}
+   ${card('Next 14 days',cal.length?`<div class="list">${cal.slice(0,7).map(x=>`<div class="item"><span class="when">${fmtDate(x.d).replace(/ \d{4}$/,'')}</span><span class="grow">${esc(x.title)}<div class="small muted">${esc(x.kind)}${x.extra?' · '+esc(x.extra):''}</div></span></div>`).join('')}</div>`:'<div class="empty">Nothing scheduled.</div>')}
+   ${card('City Health Index',ch.rows.some(r=>r.score)?bars(ch.rows.slice(0,8).map(r=>({l:r.c,v:r.score}))):'<div class="empty">Add events, people, projects or partners with a city.</div>','relative to the strongest city')}</div>`;
+};
+
+V.okrs=()=>{
+  const s=set();const day=daysBetween(s.startDate,today())+1;const ph=day<=30?0:day<=90?1:day<=180?2:3;
+  const rows=ALL('okrs');const qs=[...new Set(rows.map(r=>r.quarter||'Unassigned'))].sort();
+  const prog=r=>{const cur=r.metric?mv(r.metric):has(r.current)?num(r.current):null;return {cur,r:ratio(cur,num(r.target),MDEF[r.metric]?.lower)}};
+  return head('Command center','OKRs & phases','Quarterly objectives and key results per pillar, and where we are in the 180-day plan.')+
+  card('180-day plan',`<div class="small muted">Started ${fmtDate(s.startDate)} · today is day ${day>0?day:'—'}</div><div class="phase">
+   <div class="${ph===0?'on':''}"><b>Seed · days 0–30</b>Tracking live, Lagos community, first build nights, 20 BD targets, job board, regulatory tracker, ramp audit</div>
+   <div class="${ph===1?'on':''}"><b>Activate · days 31–90</b>5 city chapters, hackathon + grants round 1, creator and ambassador programs, 3 partner pilots incl. a ramp, first bounties, education cohort 1</div>
+   <div class="${ph===2?'on':''}"><b>Scale · days 91–180</b>Campus chapters, fellowship, 10+ live integrations, merchant and remittance pilots, budget follows City Health</div></div>`)+
+  (rows.length?qs.map(q=>`<div class="section"><h2>${esc(q)}</h2><div class="card"><div class="bars">${rows.filter(r=>(r.quarter||'Unassigned')===q).map(r=>{const p=prog(r);const w=p.r===null?0:Math.min(p.r,1)*100;
+    return `<div class="bar" style="grid-template-columns:minmax(0,1.4fr) minmax(80px,1fr) auto"><span class="l" style="white-space:normal"><button class="link" style="color:var(--fg);text-decoration:none" data-open="okrs:${esc(r.id)}">${esc(r.kr)}</button><div class="small muted">${esc(r.objective)}${r.pillar?' · '+esc(r.pillar):''}${r.owner?' · '+esc(r.owner):''}${r.example?' <span class="ex">Example</span>':''}</div></span><span class="t"><i style="width:${w}%;background:var(--accent)"></i></span><span class="v">${p.cur===null?'—':fmtBy(MDEF[r.metric]?.f,p.cur)} / ${fmtBy(MDEF[r.metric]?.f,r.target)} ${statusPill(p.r)}</span></div>`}).join('')}</div></div></div>`).join(''):'')+
+  table('okrs',{rows:ALL('okrs'),title:'All key results',note:'link a key result to a monthly number so it updates itself'});
+};
+
+V.alerts=()=>{const a=alerts();const g=guardrails();
+  return head('Command center','Alerts & guardrails','Alerts come from targets, month-on-month drops, stale data, overdue work and open risks. Guardrails stop activity that is not real growth from counting.')+
+  `<div class="grid cols-2">${card(`Alerts <small>${a.length}</small>`,a.length?`<div class="list">${a.map(x=>`<div class="item"><span class="status ${x.sev==='critical'?'bad':x.sev==='serious'?'serious':'warn'}">${x.sev}</span><span class="grow">${esc(x.text)}</span><button class="link small" data-go="${x.tab}">Open</button></div>`).join('')}</div>`:'<div class="empty">Nothing needs attention.</div>')}
+  ${card('Guardrails',`<div class="list">${g.map(x=>`<div class="item"><span class="status ${x.ok?'good':'bad'}">${x.ok?'OK':'Check'}</span><span class="grow">${x.t}<div class="small muted">${esc(x.hint)}</div></span></div>`).join('')}</div>`)}</div>`};
+
+function reportText(kind){
+  const s=set(),T=s.targets,l=latest();const lines=[];const L=x=>lines.push(x);
+  L(`# Arc Nigeria · ${kind==='week'?'Weekly growth review':'Monthly report'}`);L(`Generated ${fmtDate(today())}${l?` · monthly numbers for ${monthLabel(l.id)}`:''}${st.city!=='All'?` · ${st.city}`:''}`);L('');
+  L('## Headline');[['maep'],['usdc_volume'],['live_apps'],['funded_projects']].forEach(([k])=>{const v=mv(k),p=mprev(k);L(`- ${klabel(k)}: ${fmtBy(kfmt(k),v)} (target ${fmtBy(kfmt(k),T[k])}${v!==null&&p?`, ${(v-p)/p>=0?'+':''}${Math.round((v-p)/p*100)}% MoM`:''})`)});
+  const hi=healthIndex();L(`- Ecosystem Health Index: ${hi===null?'—':hi+'/100'}`);L('');
+  L('## Pillars');PILLARS.forEach(p=>{const sc=pillarScore(p);L(`- ${p.name}: ${sc===null?'—':sc} · ${p.kpis.map(k=>`${klabel(k)} ${fmtBy(kfmt(k),val(k))}`).join(', ')}`)});L('');
+  const a=alerts();L('## Needs attention');if(!a.length)L('- Nothing flagged');a.slice(0,10).forEach(x=>L(`- [${x.sev}] ${x.text}`));L('');
+  const d=R('deals',{noPeriod:1});L('## BD pipeline');countBy(d,'stage',S.deals.fields[2].o).forEach(x=>L(`- ${x.l}: ${x.v}`));L('');
+  const days=kind==='week'?7:31;const up=calendarItems().filter(x=>x.d>=today()&&x.d<=addDays(today(),days));L(`## Coming up (next ${days} days)`);if(!up.length)L('- Nothing scheduled');up.slice(0,15).forEach(x=>L(`- ${x.d} · ${x.kind}: ${x.title}`));L('');
+  const ex=ALL('experiments').filter(e=>['Won','Lost','Inconclusive'].includes(e.status)&&inPeriod(e.end));L('## Experiments concluded');if(!ex.length)L('- None in this period');ex.forEach(e=>L(`- ${e.name}: ${e.status}${e.learning?' · '+e.learning:''}`));L('');
+  const b=ALL('budget');L('## Budget');L(`- Planned ${fmtUSD(sum(b,'planned'))} · Actual ${fmtUSD(sum(b,'actual'))}`);
+  return lines.join('\n');
+}
+V.reports=()=>{const id=nid('rep');const k=st.reportKind||'week';
+  return head('Command center','Reports','A ready-to-send summary built from everything in the dashboard. Copy it into Slack or email, or save it as a Markdown file.',
+   `<select class="ctl" id="rep-kind" aria-label="Report type"><option value="week"${k==='week'?' selected':''}>Weekly growth review</option><option value="month"${k==='month'?' selected':''}>Monthly report</option></select><button class="btn" data-copy="${id}">Copy</button><button class="btn" data-save="${id}">Save .md</button>`)+
+  `<pre class="report" id="${id}">${esc(reportText(k))}</pre>`};
+
+V.builders=()=>{
+  const l=latest();const steps=STUDIO.map(([k,lab])=>({l:lab,v:l?num(l[k]):0}));
+  return head('Build','Builders & Arc Studio','Developer supply and the product on-ramp. The Arc Studio lifecycle runs from first visit to repeat builder and advocate.')+
+  tiles([tile('studio_signups'),tile('studio_mainnet',{label:'Mainnet deploys via Studio'}),tile('dev_active'),tile('dev_retention_30',{label:'30-day builder retention'}),tile('support_frt_hours',{label:'Support first response'}),tile('support_tickets')])+
+  `<div class="section grid cols-2">${card('Arc Studio lifecycle',funnel(steps),sourceNote())}
+   ${card('Developer funnel (beyond Studio)',funnel([{l:'Docs visitors',v:mv('dev_docs')},{l:'SDK / App Kit installs',v:mv('dev_sdk')},{l:'Monthly active devs',v:mv('dev_active')},{l:'Contracts deployed',v:mv('contracts')}]),sourceNote())}</div>`+
+  `<div class="section grid cols-2">${card('Sign-ups and mainnet deploys',chartSlot(el=>lineChart(el,{lines:[{name:'Studio sign-ups',c:'--s1',pts:series('studio_signups')}]})))}${card('Studio mainnet deploys',chartSlot(el=>lineChart(el,{lines:[{name:'Mainnet live',c:'--s3',pts:series('studio_mainnet')}]})))}</div>`+
+  `<div class="section"><h2>Stage definitions and levers</h2><div class="stages">${STUDIO.map(([k,lab,d],i)=>`<div class="stage"><span class="n">${i} · ${l&&has(l[k])?fmtN(l[k]):'—'}</span><b>${lab}</b>${d}</div>`).join('')}</div>
+  <p class="small muted">Levers: Nigeria prompt template packs (ajo savings, remittance, school fees, invoicing) for the first prompt · build nights and office hours for first app → testnet · mainnet challenges and deployment grants for testnet → mainnet · ramp partners and co-marketing for mainnet → transacting.</p></div>`+
+  table('projects',{rows:R('projects',{noPeriod:1}).filter(p=>p.studio==='Yes'),title:'Projects built with Arc Studio',note:'set “Built with Arc Studio” on a project'});
+};
+
+V.education=()=>{const c=R('courses');const en=sum(c,'enrolled');
+  return head('Build','Education & talent pipeline','Courses, bootcamps, fellowships and non-dev tracks that turn learners into builders and hires.')+
+  tiles([tile('enrolled'),tile('completion_rate'),tile('',{label:'Certified',value:sum(c,'certified'),fmt:'n'}),tile('',{label:'Went on to build',value:sum(c,'built'),fmt:'n',sub:en?fmtPct(sum(c,'built')/en*100)+' of enrolled':''}),tile('',{label:'Placed or funded',value:sum(c,'placed'),fmt:'n'}),tile('',{label:'Women enrolled',value:en?sum(c,'women')/en*100:null,fmt:'pct'})])+
+  `<div class="section grid cols-2">${card('Learner funnel',funnel([{l:'Enrolled',v:en},{l:'Started',v:sum(c,'started')},{l:'Completed',v:sum(c,'completed')},{l:'Certified',v:sum(c,'certified')},{l:'Built something',v:sum(c,'built')},{l:'Placed / funded',v:sum(c,'placed')}]))}
+   ${card('Enrolment by program type',bars(sumBy(c,'type','enrolled')))}</div>`+table('courses');};
+
+V.projects=()=>{const p=R('projects',{noPeriod:1}),g=R('grants',{noPeriod:1});const hk=p.filter(x=>x.source==='Hackathon');const alive=hk.filter(x=>!['Idea','Prototype','Inactive'].includes(x.stage));
+  return head('Build','Projects, startups & funding','Every Nigerian project on Arc from idea to scaling, plus grants paid in milestones and outside capital raised.')+
+  tiles([tile('',{label:'Projects tracked',value:p.length,fmt:'n'}),tile('projects_mainnet'),tile('',{label:'Hackathon project survival',value:hk.length?alive.length/hk.length*100:null,fmt:'pct',sub:`${alive.length} of ${hk.length} past prototype`}),tile('grants_paid'),tile('',{label:'Grants committed',value:sum(g.filter(x=>!['Rejected','Applied','Reviewing'].includes(x.status)),'amount'),fmt:'usd'}),tile('',{label:'Capital raised',value:sum(p,'raised'),fmt:'usd'})])+
+  `<div class="section grid cols-3">${card('Project lifecycle',funnel(S.projects.fields[2].o.filter(s=>s!=='Inactive').map((s,i,arr)=>({l:s,v:p.filter(x=>arr.indexOf(x.stage)>=i).length}))),'cumulative: at or past each stage')}
+   ${card('By category',bars(countBy(p,'category')))}${card('Grants by status',bars(countBy(g,'status',S.grants.fields[2].o)))}</div>`+
+  table('projects',{rows:p})+table('grants',{rows:g});};
+
+V.feedback=()=>{const f=R('feedback',{noPeriod:1});
+  return head('Build','Product feedback loop','What Nigerian builders, partners and users need from Arc and Circle products, and what shipped because of it.')+
+  tiles([tile('',{label:'Open items',value:f.filter(x=>!['Shipped','Won’t do'].includes(x.status)).length,fmt:'n'}),tile('feedback_shipped_pct'),tile('',{label:'Ramp / partner blockers',value:f.filter(x=>x.kind==='Ramp / partner blocker'&&x.status!=='Shipped').length,fmt:'n'}),tile('',{label:'Times raised (total)',value:sum(f,'votes'),fmt:'n'})])+
+  `<div class="section grid cols-3">${card('By product',bars(sumBy(f,'product','votes')),'times raised')}${card('By kind',bars(countBy(f,'kind')))}${card('By status',bars(countBy(f,'status',S.feedback.fields[5].o)))}</div>`+table('feedback',{rows:f});};
+
+V.onchain=()=>{const apps=ALL('projects').filter(p=>num(p.volume)>0||num(p.wallets)>0).sort((a,b)=>num(b.volume)-num(a.volume)).slice(0,10);
+  return head('Adopt','Onchain usage & apps','Proof that growth is real: Nigerian apps live on Arc, wallets, transactions and USDC volume.')+
+  tiles([tile('usdc_volume'),tile('wallets'),tile('txns'),tile('active_apps'),tile('live_apps'),tile('contracts'),tile('cctp_inflow',{label:'CCTP / bridge inflow'}),tile('portal_visits')])+
+  `<div class="section grid cols-2">${card('USDC volume',chartSlot(el=>lineChart(el,{lines:[{name:'USDC volume',c:'--s1',pts:series('usdc_volume')}],fmt:'usd'})))}${card('Unique wallets',chartSlot(el=>lineChart(el,{lines:[{name:'Wallets',c:'--s3',pts:series('wallets')}]})))}</div>`+
+  `<div class="section grid cols-2">${card('Top Nigerian apps by monthly volume',bars(apps.map(a=>({l:a.name,v:a.volume})),{fmt:'usd'}),'from Projects')}${card('Quality checks',`<div class="list">${guardrails().slice(0,1).map(x=>`<div class="item"><span class="status ${x.ok?'good':'bad'}">${x.ok?'OK':'Check'}</span><span class="grow">${x.t}<div class="small muted">${esc(x.hint)}</div></span></div>`).join('')||'<div class="empty">Add app volumes in Projects to check concentration.</div>'}</div><p class="small muted">Exclude wash trading, farmed wallets and test traffic before entering monthly onchain numbers.</p>`)}</div>`;};
+
+V.users=()=>{const r=ALL('ramps');
+  return head('Adopt','Users, ramps & merchants','How everyday Nigerians get naira into USDC on Arc and back, where they spend it, and how diaspora money arrives.')+
+  tiles([tile('ramps_live'),tile('ramp_volume'),tile('end_users'),tile('merchants_active'),tile('merchant_volume'),tile('remit_volume')])+
+  `<div class="section grid cols-3">${card('Arc support by venue',bars(countBy(r,'status',S.ramps.fields[2].o).map(x=>({...x,c:x.l==='Live'?'--s6':x.l==='Testing'?'--s4':x.l==='In talks'?'--s1':'--s8'}))))}
+   ${card('Remittance volume by corridor',bars(sumBy(r.filter(x=>x.corridor),'corridor','volume'),{fmt:'usd'}))}
+   ${card('Merchants',chartSlot(el=>lineChart(el,{lines:[{name:'Onboarded',c:'--s1',pts:series('merchants_onboarded')},{name:'Monthly active',c:'--s2',pts:series('merchants_active')}],height:170})))}</div>`+
+  `<div class="section">${card('End-user funnel',funnel([{l:'Arc Portal visits',v:mv('portal_visits')},{l:'Wallets',v:mv('wallets')},{l:'Repeat users',v:mv('end_users')}]),sourceNote())}</div>`+
+  table('ramps',{rows:r,note:'which wallets, exchanges and ramps support USDC on Arc'});};
+
+V.bd=()=>{const d=R('deals',{noPeriod:1});const st8=S.deals.fields[2].o;const t=today();
+  const closed=d.filter(x=>x.firstContact&&x.signedDate);const ttc=closed.length?Math.round(closed.reduce((a,x)=>a+daysBetween(x.firstContact,x.signedDate),0)/closed.length):null;
+  const stale=d.filter(x=>!['Lost','Live','Expanding'].includes(x.stage)&&((x.lastContact&&daysBetween(x.lastContact,t)>14)||x.health==='At risk'||(x.nextDate&&x.nextDate<t)));
+  return head('Adopt','BD & partnerships','Fintechs, ramps, wallets, remittance, banks, merchants, telcos, hubs, universities, media, investors, government and infrastructure partners.')+
+  tiles([tile('pipeline_open'),tile('deals_live'),tile('win_rate'),tile('',{label:'Avg time to sign',value:ttc,fmt:'n',sub:ttc===null?'':'days'}),tile('',{label:'Expected monthly volume (open)',value:sum(d.filter(x=>!['Lost'].includes(x.stage)),'value'),fmt:'usd'}),tile('',{label:'Users reached via partners',value:sum(d.filter(x=>['Live','Expanding'].includes(x.stage)),'users'),fmt:'n'})])+
+  `<div class="section grid cols-3">${card('Pipeline by stage',bars(st8.filter(s=>s!=='Lost').map(s=>({l:s,v:d.filter(x=>x.stage===s).length})).concat([{l:'Lost',v:d.filter(x=>x.stage==='Lost').length,c:'--s8'}])))}
+   ${card('By partner type',bars(countBy(d.filter(x=>x.stage!=='Lost'),'type')))}
+   ${card('Lost reasons',bars(countBy(d.filter(x=>x.stage==='Lost'),'lostReason')))}</div>`+
+  `<div class="section">${card(`Needs a nudge <small>${stale.length}</small>`,stale.length?`<div class="list">${stale.map(x=>`<div class="item"><span class="status ${stageClass(x.health)||'warn'}">${esc(x.health||'Check')}</span><span class="grow"><button class="link" data-open="deals:${esc(x.id)}">${esc(x.org)}</button> · ${esc(x.stage||'')}<div class="small muted">${x.lastContact?'last contact '+fmtDate(x.lastContact):''}${x.nextStep?' · next: '+esc(x.nextStep):''}${x.nextDate?' by '+fmtDate(x.nextDate):''}</div></span></div>`).join('')}</div>`:'<div class="empty">Every open deal is moving.</div>')}</div>`+
+  table('deals',{rows:d});};
+
+V.content=()=>{const c=R('content');const pub=c.filter(x=>x.status==='Published');const cost=sum(pub,'cost'),su=sum(pub,'signups');
+  return head('Reach','Content & social','Threads, tutorials, short video, Spaces, newsletter, case studies and local-language explainers, and what they bring in.')+
+  tiles([tile('content_published'),tile('',{label:'Impressions',value:sum(pub,'impressions'),fmt:'n'}),tile('engagement_rate'),tile('',{label:'Clicks',value:sum(pub,'clicks'),fmt:'n'}),tile('',{label:'Attributed sign-ups',value:su,fmt:'n'}),tile('',{label:'Cost per sign-up',value:su?cost/su:null,fmt:'usd'})])+
+  `<div class="section grid cols-3">${card('Impressions by platform',bars(sumBy(pub,'platform','impressions')))}${card('Sign-ups by format',bars(sumBy(pub,'format','signups')))}${card('Pieces by language',bars(countBy(c,'language',LANGS)))}</div>`+
+  `<div class="section grid cols-2">${card('Audience',chartSlot(el=>lineChart(el,{lines:[{name:'X',c:'--s1',pts:series('followers_x')},{name:'YouTube',c:'--s2',pts:series('followers_yt')},{name:'TikTok',c:'--s3',pts:series('followers_tiktok')},{name:'Newsletter',c:'--s4',pts:series('newsletter_subs')}]})),'followers and subscribers')}
+   ${card('Pipeline',bars(countBy(R('content',{noPeriod:1}),'status',S.content.fields[4].o)),'all dates')}</div>`+
+  table('content',{rows:R('content',{noPeriod:1}).filter(x=>x.status!=='Published'&&(!x.date||x.date>=addDays(today(),-7))),title:'Content calendar',note:'not yet published',cols:['title','format','platform','language','status','date','creator']})+table('content',{rows:pub,title:'Published'});};
+
+V.brand=()=>{const m=R('mentions');const press=m.filter(x=>['Press','Interview','Speaking slot'].includes(x.kind));
+  return head('Reach','Brand, PR & market intelligence','Press and speaking, social sentiment, and how often Arc is mentioned compared with other chains and stablecoin rails active in Nigeria.')+
+  tiles([tile('',{label:'Mentions logged',value:m.length,fmt:'n'}),tile('',{label:'Press, interviews & talks',value:press.length,fmt:'n',sub:`${press.filter(x=>x.tier==='Tier 1').length} tier 1`}),tile('sentiment_pos_pct'),tile('share_of_voice_pct'),tile('',{label:'Reach',value:sum(m,'reach'),fmt:'n'})])+
+  `<div class="section grid cols-3">${card('Sentiment',bars(['Positive','Neutral','Negative'].map((s,i)=>({l:s,v:m.filter(x=>x.sentiment===s).length,c:['--s6','--s1','--s8'][i]}))))}
+   ${card('Mentions by chain',bars(countBy(m.filter(x=>x.kind!=='Competitor move'),'subject',set().competitors)),'share of voice from your log')}
+   ${card('Sentiment trend',chartSlot(el=>lineChart(el,{lines:[{name:'Positive share',c:'--s6',pts:series('sentiment_pos_pct')},{name:'Share of voice',c:'--s1',pts:series('share_of_voice_pct')}],fmt:'pct',height:170})))}</div>`+
+  table('mentions',{rows:m.filter(x=>x.kind==='Competitor move'),title:'Competitor moves'})+table('mentions',{rows:m,title:'Full log'});};
+
+V.community=()=>{const a=R('ambassadors',{noPeriod:1});const lead=a.slice().sort((x,y)=>num(y.points)-num(x.points)).slice(0,8);
+  return head('Reach','Community & ambassadors','Discord, Telegram and WhatsApp groups, city and campus chapters, and the ambassador program.')+
+  tiles([tile('members_total'),tile('members_active'),tile('contributors'),tile('chapters'),tile('nps'),tile('ambassadors_active'),tile('',{label:'Ambassador referrals',value:sum(a,'referrals'),fmt:'n'}),tile('',{label:'Rewards paid',value:sum(a,'rewards'),fmt:'usd'})])+
+  `<div class="section grid cols-3">${card('Members',chartSlot(el=>lineChart(el,{lines:[{name:'Total',c:'--s1',pts:series('members_total')},{name:'Weekly active',c:'--s2',pts:series('members_active')}],height:170})))}
+   ${card('Community funnel',funnel([{l:'Joined',v:mv('members_total')},{l:'Active',v:mv('members_active')},{l:'Contributor',v:mv('contributors')},{l:'Leader / ambassador',v:K.ambassadors_active()}]),sourceNote())}
+   ${card('Ambassador leaderboard',bars(lead.map(x=>({l:x.name+(x.city?' · '+x.city:''),v:x.points}))),'points')}</div>`+
+  `<div class="section">${card('Ambassador stages',bars(countBy(a,'tier',S.ambassadors.fields[3].o)))}</div>`+table('ambassadors',{rows:a});};
+
+V.events=()=>{const e=R('events');const done=e.filter(x=>x.status==='Done');const att=sum(done,'attended');
+  const up=R('events',{noPeriod:1}).filter(x=>x.date>=today()&&x.status!=='Cancelled').sort((a,b)=>a.date.localeCompare(b.date));
+  return head('Reach','Events','Build nights, hackathons, meetups, campus tours, demo days, workshops, BD dinners and conferences, measured on what happens afterwards.')+
+  tiles([tile('events_done'),tile('',{label:'Attendees',value:att,fmt:'n'}),tile('attendance_rate'),tile('',{label:'Sign-ups from events',value:sum(done,'signups'),fmt:'n'}),tile('',{label:'Shipped / partnered after',value:sum(done,'shipped'),fmt:'n'}),tile('',{label:'Cost per attendee',value:att?sum(done,'cost')/att:null,fmt:'usd'}),tile('',{label:'Avg satisfaction',value:done.filter(x=>has(x.csat)).length?sum(done,'csat')/done.filter(x=>has(x.csat)).length:null,fmt:'n',sub:'out of 5'})])+
+  `<div class="section grid cols-3">${card('Event funnel',funnel([{l:'RSVP',v:sum(done,'rsvps')},{l:'Attended',v:att},{l:'Signed up / joined',v:sum(done,'signups')},{l:'Shipped / partnered',v:sum(done,'shipped')}]))}
+   ${card('Attendees by city',bars(sumBy(done,'city','attended')))}${card('Events by type',bars(countBy(e,'type')))}</div>`+
+  `<div class="section">${card(`Upcoming <small>${up.length}</small>`,up.length?`<div class="list">${up.slice(0,8).map(x=>`<div class="item"><span class="when">${fmtDate(x.date)}</span><span class="grow"><button class="link" data-open="events:${esc(x.id)}">${esc(x.name)}</button><div class="small muted">${[x.type,x.city,x.status,x.rsvps?x.rsvps+' RSVPs':''].filter(Boolean).map(esc).join(' · ')}</div></span></div>`).join('')}</div>`:'<div class="empty">No upcoming events.</div>')}</div>`+table('events',{rows:R('events',{noPeriod:1})});};
+
+V.jobs=()=>{const j=R('jobs');const jobs=j.filter(x=>x.kind==='Job'),b=j.filter(x=>x.kind==='Bounty');
+  return head('Talent','Jobs, bounties & opportunities','Roles at Nigerian Arc projects and partners, bounties paid in USDC, fellowships and grant programs.')+
+  tiles([tile('',{label:'Open roles',value:jobs.filter(x=>['Open','Shortlisting','Interviewing'].includes(x.status)).length,fmt:'n'}),tile('',{label:'Applicants',value:sum(jobs,'applicants'),fmt:'n'}),tile('placements'),tile('',{label:'Hiring companies',value:new Set(jobs.map(x=>x.company).filter(Boolean)).size,fmt:'n'}),tile('bounties_paid'),tile('',{label:'USDC paid out',value:sum(j,'payout'),fmt:'usd'})])+
+  `<div class="section grid cols-3">${card('Hiring funnel',funnel([{l:'Applicants',v:sum(jobs,'applicants')},{l:'Shortlisted',v:sum(jobs,'interviews')},{l:'Hired',v:sum(jobs,'hires')}]))}
+   ${card('Bounty funnel',funnel([{l:'Submissions',v:sum(b,'applicants')},{l:'Shortlisted',v:sum(b,'interviews')},{l:'Winners paid',v:sum(b,'hires')}]))}${card('Roles by function',bars(countBy(jobs,'func')))}</div>`+table('jobs',{rows:j});};
+
+V.growth=()=>{const c=R('campaigns'),e=ALL('experiments');const sp=sum(c,'spend'),act=sum(c,'activated');const concl=e.filter(x=>['Won','Lost','Inconclusive'].includes(x.status));
+  return head('Operate','Campaigns & experiments','Campaigns with UTM tracking, what each channel brings in and costs, and the experiment log.')+
+  tiles([tile('',{label:'Campaign spend',value:sp,fmt:'usd'}),tile('',{label:'Sign-ups',value:sum(c,'signups'),fmt:'n'}),tile('',{label:'Activated',value:act,fmt:'n'}),tile('',{label:'Cost per activated',value:act?sp/act:null,fmt:'usd'}),tile('',{label:'Experiments running',value:e.filter(x=>x.status==='Running').length,fmt:'n'}),tile('',{label:'Experiment win rate',value:concl.length?e.filter(x=>x.status==='Won').length/concl.length*100:null,fmt:'pct'})])+
+  `<div class="section grid cols-3">${card('Sign-ups by channel',bars(sumBy(c,'channel','signups')))}${card('Activated by channel',bars(sumBy(c,'channel','activated'),{color:'--s3'}))}${card('Spend by channel',bars(sumBy(c,'channel','spend'),{fmt:'usd',color:'--s2'}))}</div>`+
+  `<div class="section">${card('UTM link builder',`<div class="form" style="grid-template-columns:repeat(auto-fill,minmax(min(100%,180px),1fr))"><label>Page URL<input id="utm-url" placeholder="https://…"></label><label>Source<input id="utm-src" placeholder="x, whatsapp, unilag"></label><label>Medium<input id="utm-med" placeholder="social, event, ambassador"></label><label>Campaign<input id="utm-cmp" placeholder="lagos-build-night-1"></label></div><p class="mono small" id="utm-out" style="word-break:break-all;margin:10px 0 6px">Fill in the fields to build a link.</p><button class="btn small" id="utm-copy">Copy link</button>`)}</div>`+
+  table('campaigns',{rows:c})+table('experiments',{rows:e});};
+
+V.budget=()=>{const b=R('budget');const P=sum(b,'planned'),A=sum(b,'actual');const pil=[...new Set(b.map(x=>x.pillar||'Unspecified'))];
+  const tot=sum(ALL('budget'),'actual');const per=(n,lab)=>({l:lab,v:n?tot/n:null});
+  const cpo=[per(mv('studio_signups'),'Per Studio sign-up (this month)'),per(K.projects_mainnet(),'Per project on mainnet+'),per(K.deals_live(),'Per live partner'),per(sum(ALL('jobs'),'hires'),'Per hire or bounty winner'),per(sum(ALL('events').filter(e=>e.status==='Done'),'attended'),'Per event attendee'),per(mv('maep'),'Per active participant')];
+  return head('Operate','Budget & ROI','Planned against actual spend by pillar, city and category, and what each outcome costs.')+
+  tiles([tile('',{label:'Planned',value:P,fmt:'usd'}),tile('',{label:'Actual',value:A,fmt:'usd',sub:P?fmtPct(A/P*100)+' of plan':''}),tile('',{label:'Remaining',value:P-A,fmt:'usd'}),tile('',{label:'Awaiting approval',value:b.filter(x=>x.status==='Planned').length,fmt:'n'})])+
+  `<div class="section grid cols-2">${card('Planned vs actual by pillar',`<div class="legend"><span><i style="background:var(--s1)"></i>Planned</span><span><i style="background:var(--s2)"></i>Actual</span></div>`+(pil.length?`<div class="bars">${pil.map(p=>{const pp=sum(b.filter(x=>(x.pillar||'Unspecified')===p),'planned'),aa=sum(b.filter(x=>(x.pillar||'Unspecified')===p),'actual');const m=Math.max(1,...pil.map(q=>Math.max(sum(b.filter(x=>(x.pillar||'Unspecified')===q),'planned'),sum(b.filter(x=>(x.pillar||'Unspecified')===q),'actual'))));
+     return `<div class="bar"><span class="l">${esc(p)}</span><span style="display:flex;flex-direction:column;gap:2px"><span class="t" style="height:8px"><i style="width:${pp/m*100}%;background:var(--s1)"></i></span><span class="t" style="height:8px"><i style="width:${aa/m*100}%;background:var(--s2)"></i></span></span><span class="v">${fmtUSD(pp)}<br>${fmtUSD(aa)}</span></div>`}).join('')}</div>`:'<div class="empty">No budget lines yet.</div>'))}
+   ${card('Cost per outcome',`<div class="bars">${cpo.map(x=>`<div class="bar"><span class="l" style="white-space:normal">${esc(x.l)}</span><span></span><span class="v">${x.v===null?'—':fmtUSD(x.v)}</span></div>`).join('')}</div><p class="small muted">All-time actual spend divided by each outcome.</p>`)}</div>`+
+  `<div class="section grid cols-2">${card('Spend by category',bars(sumBy(b,'category','actual'),{fmt:'usd',color:'--s2'}))}${card('Spend by city',bars(sumBy(b,'city','actual'),{fmt:'usd',color:'--s2'}))}</div>`+table('budget',{rows:b});};
+
+V.tasks=()=>{const t=R('tasks',{noPeriod:1});const open=t.filter(x=>x.status!=='Done');const od=open.filter(x=>x.due&&x.due<today());
+  return head('Operate','Team & tasks','Who owns what across the pillars, what is due and what is stuck.')+
+  tiles([tile('',{label:'Open tasks',value:open.length,fmt:'n'}),tile('',{label:'Overdue',value:od.length,fmt:'n'}),tile('',{label:'Blocked',value:t.filter(x=>x.status==='Blocked').length,fmt:'n'}),tile('',{label:'Done',value:t.filter(x=>x.status==='Done').length,fmt:'n'})])+
+  `<div class="section grid cols-3">${card('Open tasks by owner',bars(countBy(open,'owner')))}${card('Open tasks by pillar',bars(countBy(open,'pillar')))}${card('By status',bars(countBy(t,'status',S.tasks.fields[4].o)))}</div>`+table('tasks',{rows:t});};
+
+V.calendar=()=>{const it=calendarItems().filter(x=>x.d>=addDays(today(),-7)&&x.d<=addDays(today(),90));const wk={};
+  it.forEach(x=>{const d=new Date(x.d+'T00:00:00');const m=new Date(d);m.setDate(d.getDate()-((d.getDay()+6)%7));const k=m.toISOString().slice(0,10);(wk[k]=wk[k]||[]).push(x)});
+  return head('Operate','Calendar','Events, content, campaigns, partner next steps, grant milestones, job deadlines and regulatory reviews in one place. Last week to 90 days out.')+
+  (Object.keys(wk).length?Object.keys(wk).sort().map(k=>card(`Week of ${fmtDate(k)}`,`<div class="list">${wk[k].map(x=>`<div class="item"><span class="when">${new Date(x.d+'T00:00:00').toLocaleDateString('en-GB',{weekday:'short',day:'numeric'})}</span><span class="grow">${esc(x.title)}<div class="small muted">${esc(x.kind)}${x.extra?' · '+esc(x.extra):''}</div></span><button class="link small" data-go="${x.tab}">Open</button></div>`).join('')}</div>`)).join('<div style="height:12px"></div>'):'<div class="empty">Nothing dated in this window. Dates on events, content, tasks, deals, grants, jobs, campaigns and risks show up here.</div>');};
+
+V.policy=()=>{const r=ALL('risks');const open=r.filter(x=>x.status!=='Closed');const L=['High','Medium','Low'],I=['Low','Medium','High'];
+  return head('Operate','Policy, regulation, trust & safety','Regulatory tracker (SEC Nigeria, CBN, NITDA, FIRS, states), compliance sign-offs, scam and impersonation takedowns, and the risk register.')+
+  tiles([tile('',{label:'Open items',value:open.length,fmt:'n'}),tile('open_high_risks'),tile('',{label:'Open scam / impersonation reports',value:open.filter(x=>x.kind==='Scam / impersonation').length,fmt:'n'}),tile('',{label:'Regulatory items open',value:open.filter(x=>['Regulatory change','Regulator engagement'].includes(x.kind)).length,fmt:'n'}),tile('',{label:'Compliance sign-offs pending',value:open.filter(x=>x.kind==='Compliance sign-off').length,fmt:'n'})])+
+  `<div class="section grid cols-2">${card('Risk matrix',`<div class="matrix" role="table" aria-label="Open risks by likelihood and impact"><div class="ax"></div>${I.map(i=>`<div class="ax">Impact: ${i}</div>`).join('')}${L.map(l=>`<div class="ax">${l}</div>${I.map(i=>{const n=open.filter(x=>x.likelihood===l&&x.impact===i).length;const sev=(L.length-L.indexOf(l))+I.indexOf(i);const c=sev>=4?'--bad':sev===3?'--serious':sev===2?'--warn':'--good';return `<div class="cell" style="background:color-mix(in srgb,var(${c}) ${n?28:8}%,var(--panel))">${n||''}</div>`}).join('')}`).join('')}</div><p class="small muted">Rows are likelihood, columns are impact. Open items only.</p>`)}
+   ${card('Open items by kind',bars(countBy(open,'kind')))}</div>`+
+  `<p class="small muted">Before any consumer or partner campaign goes live, log a “Compliance sign-off” here and close it once cleared against current SEC Nigeria and CBN rules.</p>`+table('risks',{rows:r});};
+
+V.directory=()=>{const c=R('contacts',{noPeriod:1});const p=st.openPerson?ALL('contacts').find(x=>x.id===st.openPerson):null;
+  return head('Data','Directory','Everyone in the ecosystem: builders, creators, ambassadors, mentors, job seekers, partners, startups, hubs, universities, media, investors and regulators.')+
+  tiles([tile('',{label:'People',value:c.filter(x=>x.kind!=='Organization').length,fmt:'n'}),tile('',{label:'Organizations',value:c.filter(x=>x.kind==='Organization').length,fmt:'n'}),tile('',{label:'Active in last 30 days',value:c.filter(x=>x.lastActive&&daysBetween(x.lastActive,today())<=30).length,fmt:'n'}),tile('',{label:'Women (of those who said)',value:(()=>{const g=c.filter(x=>x.gender&&x.gender!=='Prefer not to say');return g.length?g.filter(x=>x.gender==='Woman').length/g.length*100:null})(),fmt:'pct'})])+
+  (p?`<div class="section">${card(`Participant 360 · ${esc(p.name)}`,p360(p),`<button class="link" data-close360>Close</button>`)}</div>`:'')+
+  `<div class="section grid cols-2">${card('By role',bars(countBy(c,'role')))}${card('By city',bars(countBy(c,'city')))}</div>`+
+  table('contacts',{rows:c,note:'click a row to edit · use “View 360” in the form to see every touchpoint'});};
+function p360(p){const name=String(p.name||'').trim().toLowerCase();if(name.length<2)return'<div class="empty">Add a name first.</div>';
+  const hits=[];COLLS.filter(c=>c!=='contacts'&&c!=='okrs').forEach(c=>ALL(c).forEach(r=>{if(S[c].fields.some(f=>!['num','usd','date'].includes(f.t)&&typeof r[f.k]==='string'&&(r[f.k].toLowerCase()===name||(name.length>=4&&r[f.k].toLowerCase().includes(name)))))hits.push({c,r})}));
+  if(!hits.length)return `<div class="empty">No records mention “${esc(p.name)}” yet. Use the same name in events, projects, deals, content or jobs to link them.</div>`;
+  return `<div class="list">${hits.map(h=>`<div class="item"><span class="when">${esc(S[h.c].label)}</span><span class="grow"><button class="link" data-open="${h.c}:${esc(h.r.id)}">${esc(h.r[S[h.c].title]||'Untitled')}</button><div class="small muted">${[h.r[S[h.c].stage],S[h.c].date&&h.r[S[h.c].date]?fmtDate(h.r[S[h.c].date]):''].filter(Boolean).map(x=>esc(x)).join(' · ')}</div></span></div>`).join('')}</div><p class="small muted">${hits.length} touchpoint${hits.length===1?'':'s'} across ${new Set(hits.map(h=>h.c)).size} areas.</p>`;}
+
+V.metrics=()=>{const ms=M().slice().reverse();const groups=[...new Set(METRICS.map(m=>m.g))];
+  return head('Data','Monthly numbers','National numbers entered once a month from Arc Studio exports, analytics, onchain data, social platforms and community tools. Everything else in the dashboard is computed from team records.',
+   st.canWrite?`<button class="btn primary" data-month="new">Add month</button>`:'')+
+  (ms.length?`<div class="tblwrap"><table class="rec"><thead><tr><th>Number</th>${ms.map(m=>`<th class="num"><button class="link" data-month="${esc(m.id)}">${monthLabel(m.id)}</button>${m.example?' <span class="ex">Ex</span>':''}</th>`).join('')}<th class="num">Target</th></tr></thead><tbody>
+   ${groups.map(g=>`<tr><td colspan="${ms.length+2}" style="background:var(--panel-2);font-weight:600;font-size:12px;cursor:default">${esc(g)}</td></tr>`+METRICS.filter(m=>m.g===g).map(m=>`<tr style="cursor:default"><td>${esc(m.l)}</td>${ms.map(x=>`<td class="num">${fmtBy(m.f,x[m.k])}</td>`).join('')}<td class="num muted">${has(set().targets[m.k])?fmtBy(m.f,set().targets[m.k]):''}</td></tr>`).join('')).join('')}
+   </tbody></table></div><p class="small muted">Click a month to edit it. Monthly numbers are national; the city filter does not apply to them.</p>`:`<div class="empty">No monthly numbers yet. ${st.canWrite?'<button class="link" data-month="new">Add the first month</button>.':''}</div>`);};
+
+V.data=()=>head('Data','Import & export','Bring in spreadsheets you already keep, or take everything out. CSV headers can be the field keys or the labels shown in the forms.')+
+  `<div class="tblwrap"><table class="rec"><thead><tr><th>Area</th><th class="num">Records</th><th>Columns</th><th></th></tr></thead><tbody>
+  ${COLLS.map(c=>`<tr style="cursor:default"><td>${esc(S[c].label)}</td><td class="num">${ALL(c).length}</td><td class="small muted" style="white-space:normal;max-width:420px">${S[c].fields.map(f=>f.k).join(', ')}</td><td style="white-space:nowrap">${st.canWrite?`<button class="btn small" data-import="${c}">Import</button> `:''}<button class="btn small" data-export="${c}">Export</button> <button class="btn small" data-template="${c}">Template</button></td></tr>`).join('')}
+  <tr style="cursor:default"><td>Monthly numbers</td><td class="num">${M().length}</td><td class="small muted" style="white-space:normal">month (YYYY-MM), ${METRICS.map(m=>m.k).join(', ')}</td><td style="white-space:nowrap">${st.canWrite?`<button class="btn small" data-import="metrics">Import</button> `:''}<button class="btn small" data-export="metrics">Export</button></td></tr>
+  </tbody></table></div><div class="section"><button class="btn" data-backup>Save full backup (JSON)</button></div>
+  <div class="section">${card('Where the numbers come from',`<dl class="kv"><dt>Team records</dt><dd>Everything entered here or imported by CSV. Live for everyone with access.</dd><dt>Arc Studio</dt><dd>Lifecycle counts from Studio or analytics exports, entered monthly.</dd><dt>Onchain</dt><dd>Wallets, transactions and USDC volume for Nigerian apps from an explorer or indexer, entered monthly after removing test and farmed activity.</dd><dt>Social</dt><dd>Follower counts and sentiment from platform exports or a listening tool.</dd><dt>Community</dt><dd>Member counts from Discord, Telegram and WhatsApp admin tools.</dd></dl>`)}</div>`;
+
+V.settings=()=>{const s=set();const w=s.weights;const ro=!st.canWrite;
+  return head('Data','Settings','Targets, Health Index weights, cities, campuses and the competitor watch list. Targets are monthly placeholders to replace once baselines are in.')+
+  `<form id="settings-form" class="card"><div class="form">
+   <label>Plan start date<input type="date" id="set-start" value="${esc(s.startDate)}" ${ro?'disabled':''}></label>
+   <label class="wide">Cities (comma separated)<input id="set-cities" value="${esc(s.cities.join(', '))}" ${ro?'disabled':''}></label>
+   <label class="wide">Campuses<input id="set-campuses" value="${esc(s.campuses.join(', '))}" ${ro?'disabled':''}></label>
+   <label class="wide">Competitor watch list (first entry is us)<input id="set-comp" value="${esc(s.competitors.join(', '))}" ${ro?'disabled':''}></label>
+   <fieldset><legend>Health Index weights (total ${Object.values(w).reduce((a,b)=>a+num(b),0)})</legend>${PILLARS.map(p=>`<label>${esc(p.name)}<input type="number" min="0" id="w-${p.id}" value="${num(w[p.id])}" ${ro?'disabled':''}></label>`).join('')}</fieldset>
+   <fieldset><legend>Monthly targets</legend>${Object.keys(DEFAULTS.targets).map(k=>`<label>${esc(klabel(k))}${MDEF[k]?.lower?' (lower is better)':''}<input type="number" step="any" id="t-${k}" value="${esc(s.targets[k])}" ${ro?'disabled':''}></label>`).join('')}</fieldset>
+  </div>${ro?'<p class="small muted">You can view settings but not change them.</p>':'<div style="display:flex;justify-content:flex-end;margin-top:16px"><button class="btn primary" type="submit">Save settings</button></div>'}</form>`+
+  (st.canWrite?`<div class="section">${card('Example data',`<p class="small" style="margin-top:0">${exampleCount()} example records are marked “Example”. Remove them once your real data is in.</p><button class="btn danger" data-clear-ex ${exampleCount()?'':'disabled'}>Remove all example data</button><span id="clear-confirm"></span>`)}</div>`:'');};
+
+/* ---------- forms ---------- */
+function inputFor(f,v,id){
+  const s=set();const val=v??'';
+  if(f.t==='sel'||f.t==='city'||f.t==='campus'||f.t==='comp'||f.t==='metric'){
+    const opts=f.t==='city'?['',...s.cities]:f.t==='campus'?['',...s.campuses]:f.t==='comp'?['',...s.competitors]:f.t==='metric'?['',...METRICS.map(m=>m.k)]:f.o;
+    const list=opts.includes(val)||val===''?opts:[...opts,val];
+    return `<select id="${id}">${list.map(o=>`<option value="${esc(o)}"${o===val?' selected':''}>${esc(f.t==='metric'&&o?MDEF[o].l:o||'—')}</option>`).join('')}</select>`}
+  if(f.t==='area')return `<textarea id="${id}">${esc(val)}</textarea>`;
+  if(f.t==='num'||f.t==='usd')return `<input id="${id}" type="number" step="any" inputmode="decimal" value="${esc(val)}">`;
+  if(f.t==='date')return `<input id="${id}" type="date" value="${esc(val)}">`;
+  return `<input id="${id}" value="${esc(val)}"${f.req?' required':''}>`;
+}
+function closeModal(){$('#modal-root').innerHTML='';}
+function openForm(c,rec){
+  const sc=S[c];const isNew=!rec;rec=rec||{};if(isNew&&sc.fields.some(f=>f.k==='city')&&st.city!=='All')rec={city:st.city};
+  const ro=!st.canWrite;
+  $('#modal-root').innerHTML=`<div class="overlay" data-overlay><div class="modal" role="dialog" aria-modal="true" aria-labelledby="m-title"><h2 id="m-title">${isNew?'Add '+esc(sc.one):esc(rec[sc.title]||'Edit '+sc.one)}</h2>
+   <p class="hint">${esc(sc.label)}${rec.example?' · Example record':''}${ro?' · read-only':''}</p>
+   <form id="rec-form" class="form">${sc.fields.map(f=>`<label class="${f.t==='area'||f.wide?'wide':''}">${esc(f.l)}${f.req?' *':''}${inputFor(f,rec[f.k],'f-'+f.k)}</label>`).join('')}</form>
+   <div class="actions">${!isNew&&!ro?`<span><button class="btn danger" id="m-del">Delete</button> <span id="m-delc"></span></span>`:'<span></span>'}${c==='contacts'&&!isNew?`<button class="btn" id="m-360">View 360</button>`:''}
+   <span class="r"><button class="btn" id="m-cancel">${ro?'Close':'Cancel'}</button>${ro?'':`<button class="btn primary" id="m-save">${isNew?'Add':'Save'}</button>`}</span></div></div></div>`;
+  if(ro)$('#rec-form').querySelectorAll('input,select,textarea').forEach(e=>e.disabled=true);
+  const first=$('#rec-form input,#rec-form select');first&&first.focus();
+  $('#m-cancel').onclick=closeModal;
+  $('#m-360')&&($('#m-360').onclick=()=>{st.openPerson=rec.id;closeModal();go('directory')});
+  $('#rec-form').onsubmit=e=>{e.preventDefault();$('#m-save')?.click()};
+  $('#m-save')&&($('#m-save').onclick=async()=>{
+    const body={};for(const f of sc.fields){const el=$('#f-'+f.k);let v=el.value.trim();if(f.req&&!v){el.focus();toast(`${f.l} is required`);return}
+      if(v==='')continue;if(f.t==='num'||f.t==='usd'){const n=Number(v);if(!Number.isFinite(n)){el.focus();toast(`${f.l} must be a number`);return}v=n}body[f.k]=v}
+    body.updatedAt=new Date().toISOString();if(!isNew){body.createdAt=rec.createdAt||body.updatedAt;if(rec.createdBy)body.createdBy=rec.createdBy}else{body.createdAt=body.updatedAt;if(st.uid)body.createdBy=st.uid}
+    const btn=$('#m-save');btn.disabled=true;
+    try{const ref=isNew?st.db.collection(c).doc():st.db.collection(c).doc(rec.id);await ref.set(body);closeModal();toast(isNew?`Added ${sc.one}`:'Saved')}
+    catch(err){btn.disabled=false;toast(writeError(err))}});
+  $('#m-del')&&($('#m-del').onclick=()=>{$('#m-delc').innerHTML=`Delete for everyone? <button class="btn danger small" id="m-del2">Yes, delete</button>`;$('#m-del2').onclick=async()=>{try{await st.db.collection(c).doc(rec.id).delete();closeModal();toast('Deleted')}catch(err){toast(writeError(err))}}});
+}
+function writeError(e){const c=e&&e.code;if(c==='invalid_argument')return'You don’t have permission to change this data.';if(c==='quota_exceeded')return'The dashboard is full. Delete old records or examples first.';if(c==='resource_exhausted')return'Too many changes at once. Try again in a moment.';return'Couldn’t save. Check your connection and try again.'}
+function openMonth(id){
+  const isNew=id==='new';const rec=isNew?{}:M().find(m=>m.id===id)||{};const ro=!st.canWrite;const groups=[...new Set(METRICS.map(m=>m.g))];
+  const def=isNew?today().slice(0,7):id;
+  $('#modal-root').innerHTML=`<div class="overlay" data-overlay><div class="modal" role="dialog" aria-modal="true" aria-labelledby="m-title"><h2 id="m-title">${isNew?'Add month':'Numbers for '+monthLabel(id)}</h2><p class="hint">National figures for the whole month. Leave blank what you don’t have yet.</p>
+   <form id="rec-form" class="form"><label>Month<input type="month" id="mm-id" value="${esc(def)}" ${isNew?'':'disabled'}></label>
+   ${groups.map(g=>`<fieldset><legend>${esc(g)}</legend>${METRICS.filter(m=>m.g===g).map(m=>`<label>${esc(m.l)}${m.f==='usd'?' (USD)':m.f==='pct'?' (%)':''}<input type="number" step="any" id="mm-${m.k}" value="${esc(rec[m.k]??'')}"></label>`).join('')}</fieldset>`).join('')}</form>
+   <div class="actions">${!isNew&&!ro?`<span><button class="btn danger" id="m-del">Delete month</button> <span id="m-delc"></span></span>`:'<span></span>'}<span class="r"><button class="btn" id="m-cancel">${ro?'Close':'Cancel'}</button>${ro?'':`<button class="btn primary" id="m-save">Save</button>`}</span></div></div></div>`;
+  if(ro)$('#rec-form').querySelectorAll('input').forEach(e=>e.disabled=true);
+  $('#m-cancel').onclick=closeModal;$('#rec-form').onsubmit=e=>{e.preventDefault();$('#m-save')?.click()};
+  $('#m-save')&&($('#m-save').onclick=async()=>{const mid=$('#mm-id').value;if(!/^\d{4}-\d{2}$/.test(mid)){toast('Pick a month');return}
+    const body={};for(const m of METRICS){const v=$('#mm-'+m.k).value.trim();if(v==='')continue;const n=Number(v);if(!Number.isFinite(n)){toast(`${m.l} must be a number`);return}body[m.k]=n}
+    body.updatedAt=new Date().toISOString();try{await st.db.collection('metrics').doc(mid).set(body);closeModal();toast('Saved '+monthLabel(mid))}catch(err){toast(writeError(err))}});
+  $('#m-del')&&($('#m-del').onclick=()=>{$('#m-delc').innerHTML=`Delete this month? <button class="btn danger small" id="m-del2">Yes, delete</button>`;$('#m-del2').onclick=async()=>{try{await st.db.collection('metrics').doc(id).delete();closeModal();toast('Deleted')}catch(err){toast(writeError(err))}}});
+}
+
+/* ---------- CSV ---------- */
+function csvEsc(v){v=String(v??'');return /[",\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v}
+function toCSV(keys,rows){return [keys.join(','),...rows.map(r=>keys.map(k=>csvEsc(r[k])).join(','))].join('\n')}
+function parseCSV(t){const rows=[];let row=[],f='',q=false;for(let i=0;i<t.length;i++){const ch=t[i];if(q){if(ch==='"'){if(t[i+1]==='"'){f+='"';i++}else q=false}else f+=ch}else if(ch==='"')q=true;else if(ch===','){row.push(f);f=''}else if(ch==='\n'||ch==='\r'){if(ch==='\r'&&t[i+1]==='\n')i++;row.push(f);rows.push(row);row=[];f=''}else f+=ch}
+  if(f!==''||row.length){row.push(f);rows.push(row)}return rows.filter(r=>r.some(x=>x.trim()!==''))}
+async function saveFile(name,text){
+  if(st.dl){try{await st.dl.save({filename:name,data:text});return}catch(e){if(e&&e.code==='declined')return}}
+  const id=nid('raw');$('#modal-root').innerHTML=`<div class="overlay" data-overlay><div class="modal" role="dialog" aria-modal="true"><h2>${esc(name)}</h2><p class="hint">Saving files isn’t available here. Copy the contents instead.</p><pre class="report" id="${id}">${esc(text)}</pre><div class="actions"><span></span><span class="r"><button class="btn" data-copy="${id}">Copy</button><button class="btn" id="m-cancel">Close</button></span></div></div></div>`;$('#m-cancel').onclick=closeModal}
+function exportColl(c){if(c==='metrics'){saveFile('arc-ng-monthly-numbers.csv',toCSV(['month',...METRICS.map(m=>m.k)],M().map(m=>({...m,month:m.id}))));return}
+  saveFile(`arc-ng-${c}.csv`,toCSV(['id',...S[c].fields.map(f=>f.k)],ALL(c)))}
+function importColl(c){const inp=document.createElement('input');inp.type='file';inp.accept='.csv,text/csv';
+  inp.onchange=async()=>{const file=inp.files[0];if(!file)return;const rows=parseCSV(await file.text());if(rows.length<2){toast('That file has no data rows');return}
+    const hdr=rows[0].map(h=>h.trim().toLowerCase());
+    if(c==='metrics'){const mi=hdr.indexOf('month');if(mi<0){toast('Add a “month” column (YYYY-MM)');return}let n=0;
+      for(const r of rows.slice(1)){const id=(r[mi]||'').trim().slice(0,7);if(!/^\d{4}-\d{2}$/.test(id))continue;const body={updatedAt:new Date().toISOString()};
+        METRICS.forEach(m=>{const i=hdr.indexOf(m.k)>=0?hdr.indexOf(m.k):hdr.indexOf(m.l.toLowerCase());if(i>=0&&r[i]!==undefined&&r[i].trim()!==''&&Number.isFinite(Number(r[i])))body[m.k]=Number(r[i])});
+        try{await st.db.collection('metrics').doc(id).set(body);n++}catch(e){toast(writeError(e));return}}toast(`Imported ${n} months`);return}
+    const map=S[c].fields.map(f=>{const i=hdr.indexOf(f.k.toLowerCase());return [f,i>=0?i:hdr.indexOf(f.l.toLowerCase())]}).filter(x=>x[1]>=0);
+    const idi=hdr.indexOf('id');if(!map.length){toast('No columns matched. Download the template for the right headers.');return}
+    let n=0;toast(`Importing ${rows.length-1} rows…`);
+    for(const r of rows.slice(1)){const body={};map.forEach(([f,i])=>{let v=(r[i]??'').trim();if(v==='')return;if(f.t==='num'||f.t==='usd'){v=Number(v.replace(/[$,]/g,''));if(!Number.isFinite(v))return}body[f.k]=v});
+      if(!Object.keys(body).length)continue;body.updatedAt=new Date().toISOString();body.createdAt=body.updatedAt;if(st.uid)body.createdBy=st.uid;
+      const id=idi>=0&&/^[A-Za-z0-9_\-.~:@+]{1,100}$/.test((r[idi]||'').trim())?r[idi].trim():null;
+      try{await (id?st.db.collection(c).doc(id):st.db.collection(c).doc()).set(body);n++}catch(e){toast(writeError(e));return}}
+    toast(`Imported ${n} ${S[c].label.toLowerCase()}`)};inp.click()}
+function exampleCount(){return COLLS.reduce((a,c)=>a+ALL(c).filter(r=>r.example).length,0)+M().filter(m=>m.example).length}
+async function clearExamples(){let n=0;try{for(const c of COLLS)for(const r of ALL(c).filter(r=>r.example)){await st.db.collection(c).doc(r.id).delete();n++}
+  for(const m of M().filter(m=>m.example)){await st.db.collection('metrics').doc(m.id).delete();n++}toast(`Removed ${n} example records`)}catch(e){toast(writeError(e))}}
+
+/* ---------- render ---------- */
+let raf=0;function schedule(){if(raf)return;raf=requestAnimationFrame(()=>{raf=0;render()})}
+function render(){
+  const ae=document.activeElement;const aid=ae&&ae.id&&$('#view').contains(ae)?ae.id:null;const sel=aid&&ae.selectionStart!==undefined?[ae.selectionStart,ae.selectionEnd]:null;
+  afterFns=[];uid=0;
+  const fn=V[st.tab]||V.overview;$('#view').innerHTML=fn();afterFns.forEach(f=>{try{f()}catch(e){console.error(e)}});
+  if(aid){const el=document.getElementById(aid);if(el){el.focus();try{sel&&el.setSelectionRange(sel[0],sel[1])}catch(e){}}}
+  document.querySelectorAll('.navbtn').forEach(b=>b.setAttribute('aria-current',b.dataset.go===st.tab?'page':'false'));$('#nav-select').value=st.tab;
+  renderBanner();
+  if(st.tab==='growth')bindUTM();
+}
+function renderBanner(){const n=exampleCount();let h='';
+  if(st.mode==='offline')h=`<div class="banner info">The shared team data loads when this page is opened in claude.ai while signed in. Nothing here is saved.</div>`;
+  else if(st.mode==='live'&&n)h=`<div class="banner"><span><b>Example data.</b> ${n} records and months marked “Example” show how the dashboard works. Replace them with real numbers.</span>${st.canWrite?'<button class="btn small" data-go="settings">Remove examples</button>':''}</div>`;
+  else if(st.mode==='live'&&!st.canWrite)h=`<div class="banner info">You have view access. Ask the owner for Contributor access to add or edit records.</div>`;
+  $('#banner').innerHTML=h}
+function bindUTM(){const ids=['utm-url','utm-src','utm-med','utm-cmp'];const out=$('#utm-out');if(!out)return;
+  const upd=()=>{const [u,s,m,c]=ids.map(i=>$('#'+i).value.trim());if(!u){out.textContent='Fill in the fields to build a link.';return}
+    try{const x=new URL(u);if(s)x.searchParams.set('utm_source',s);if(m)x.searchParams.set('utm_medium',m);if(c)x.searchParams.set('utm_campaign',c);out.textContent=x.toString()}catch(e){out.textContent='Enter a full URL starting with https://'}};
+  ids.forEach(i=>$('#'+i).addEventListener('input',upd));$('#utm-copy').onclick=()=>copyText(out.textContent,out)}
+function copyText(t,el){navigator.clipboard?.writeText(t).then(()=>toast('Copied'),()=>{selectEl(el);toast('Press Ctrl+C / ⌘C to copy')})??(selectEl(el),toast('Press Ctrl+C / ⌘C to copy'))}
+function selectEl(el){const r=document.createRange();r.selectNodeContents(el);const s=getSelection();s.removeAllRanges();s.addRange(r)}
+function go(tab){st.tab=tab;try{localStorage.setItem('arcng-tab',tab)}catch(e){}window.scrollTo(0,0);render()}
+
+/* ---------- nav + events ---------- */
+function buildNav(){
+  $('#navlist').innerHTML=NAV.map(([g,items])=>`<div class="navgroup"><h4>${g}</h4>${items.map(([id,l])=>`<button class="navbtn" data-go="${id}">${esc(l)}</button>`).join('')}</div>`).join('');
+  $('#nav-select').innerHTML=NAV.map(([g,items])=>`<optgroup label="${g}">${items.map(([id,l])=>`<option value="${id}">${esc(l)}</option>`).join('')}</optgroup>`).join('');
+  $('#nav-select').onchange=e=>go(e.target.value);
+}
+function buildCity(){const c=$('#f-city');const cur=st.city;c.innerHTML=['All',...set().cities.filter(x=>x!=='Online / national')].map(x=>`<option${x===cur?' selected':''}>${esc(x)}</option>`).join('');}
+document.addEventListener('click',e=>{
+  const t=e.target.closest('[data-go],[data-add],[data-open],[data-export],[data-import],[data-template],[data-month],[data-copy],[data-save],[data-backup],[data-clear-ex],[data-close360],[data-sort],[data-overlay]');if(!t)return;
+  if(t.dataset.overlay!==undefined){if(e.target===t)closeModal();return}
+  if(t.dataset.go){closeModal();go(t.dataset.go)}
+  else if(t.dataset.add){if(st.db)openForm(t.dataset.add)}
+  else if(t.dataset.open){const [c,id]=t.dataset.open.split(':');const r=ALL(c).find(x=>x.id===id);if(r)openForm(c,r)}
+  else if(t.dataset.export)exportColl(t.dataset.export);
+  else if(t.dataset.import){if(st.db)importColl(t.dataset.import)}
+  else if(t.dataset.template){const c=t.dataset.template;saveFile(`arc-ng-${c}-template.csv`,S[c].fields.map(f=>f.k).join(',')+'\n')}
+  else if(t.dataset.month)openMonth(t.dataset.month);
+  else if(t.dataset.copy){const el=document.getElementById(t.dataset.copy);copyText(el.textContent,el)}
+  else if(t.dataset.save){saveFile(`arc-ng-${st.reportKind||'week'}-report-${today()}.md`,document.getElementById(t.dataset.save).textContent)}
+  else if(t.dataset.backup!==undefined){saveFile(`arc-ng-backup-${today()}.json`,JSON.stringify({exported:new Date().toISOString(),settings:st.settings,metrics:M(),records:st.data},null,1))}
+  else if(t.dataset.clearEx!==undefined){$('#clear-confirm').innerHTML=` Remove ${exampleCount()} records for everyone? <button class="btn danger small" id="clear2">Yes, remove</button>`;$('#clear2').onclick=clearExamples}
+  else if(t.dataset.close360!==undefined){st.openPerson=null;render()}
+  else if(t.dataset.sort){const [c,k]=t.dataset.sort.split(':');const cur=st.sort[c];st.sort[c]={k,d:cur&&cur.k===k?-cur.d:-1};render()}
+});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&$('#modal-root').innerHTML)closeModal();if(e.key==='Enter'&&e.target.matches('tr[data-open]'))e.target.click()});
+document.addEventListener('change',e=>{if(e.target.id==='rep-kind'){st.reportKind=e.target.value;render()}});
+document.addEventListener('submit',async e=>{if(e.target.id!=='settings-form')return;e.preventDefault();
+  const split=v=>v.split(',').map(x=>x.trim()).filter(Boolean);const body={startDate:$('#set-start').value||DEFAULTS.startDate,cities:split($('#set-cities').value),campuses:split($('#set-campuses').value),competitors:split($('#set-comp').value),weights:{},targets:{},updatedAt:new Date().toISOString()};
+  PILLARS.forEach(p=>body.weights[p.id]=num($('#w-'+p.id).value));Object.keys(DEFAULTS.targets).forEach(k=>{const v=$('#t-'+k).value;if(v!=='')body.targets[k]=Number(v)});
+  try{await st.db.collection('config').doc('settings').set(body);toast('Settings saved')}catch(err){toast(writeError(err))}});
+$('#f-city').onchange=e=>{st.city=e.target.value;render()};
+$('#f-period').onchange=e=>{st.period=e.target.value;render()};
+let rw=0;window.addEventListener('resize',()=>{clearTimeout(rw);rw=setTimeout(render,150)});
+
+/* ---------- boot ---------- */
+buildNav();buildCity();
+try{const h=(location.hash||'').slice(1);const saved=localStorage.getItem('arcng-tab');st.tab=V[h]?h:V[saved]?saved:'overview'}catch(e){}
+render();
+const conn=(mode,text)=>{st.mode=mode;$('#conn').className='chip'+(mode==='live'?' live':'');$('#conn-t').textContent=text;renderBanner()};
+(async()=>{
+  const c=window.claude;if(!c||!c.use){conn('offline','Not connected');render();return}
+  const [db,user,dl]=await Promise.all([c.use('db'),c.use('user'),c.use('downloads')].map(p=>p.catch(()=>null)));
+  st.dl=dl;st.user=user;
+  if(!db){conn('offline','Not connected');render();return}
+  st.db=db;
+  if(user){try{st.uid=await user.id()}catch(e){}try{const w=await user.can('data.write');st.canWrite=w!==false}catch(e){st.canWrite=true}}else st.canWrite=true;
+  conn('live','Live team data');
+  const onErr=e=>{if(e&&e.code==='revoked'){st.canWrite=false;conn('offline','Access changed')}else console.warn(e)};
+  COLLS.forEach(name=>db.collection(name).limit(1000).onSnapshot(s=>{st.data[name]=s.docs.map(d=>({id:d.id,...d.data()}));schedule()},onErr));
+  db.collection('metrics').limit(240).onSnapshot(s=>{st.metrics=s.docs.map(d=>({id:d.id,...d.data()})).filter(m=>/^\d{4}-\d{2}$/.test(m.id)).sort((a,b)=>a.id.localeCompare(b.id));schedule()},onErr);
+  db.doc('config/settings').onSnapshot(s=>{st.settings=s.exists?s.data():null;buildCity();schedule()},onErr);
+  render();
+})();
+})();
+</script>
